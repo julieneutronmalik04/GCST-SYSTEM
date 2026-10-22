@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Maintenance Dashboard — GCST RMS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css?v=19"/>
+</head>
+<body class="dashboard-page">
+
+  <!-- HEADER -->
+  <header class="dash-header">
+    <a href="/gcst-system/frontend/login.html" class="dash-header-logo">
+      <div class="dash-header-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="dash-header-logo-text">
+        Granby Colleges of Science and Technology
+        <small>Room Reservation & Equipment Inventory</small>
+      </div>
+    </a>
+
+    <div class="dash-header-divider"></div>
+    <div class="dash-header-title">
+      <span>Maintenance Dashboard</span>
+    </div>
+
+    <div class="dash-header-actions">
+      <button class="icon-btn" title="Notifications" id="notifBtn">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="notif-badge"></span>
+      </button>
+      <button class="profile-btn" id="profileBtn">
+        <div class="profile-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">MT</div>
+        <div>
+          <div class="profile-name">Maintenance</div>
+          <div class="profile-role">Maintenance Staff</div>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- TAB NAVIGATION -->
+  <nav class="dash-tabs" id="dashTabs">
+    <button class="dash-tab active" data-tab="equip-list">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      Equipment List
+    </button>
+    <button class="dash-tab" data-tab="equip-reports">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Condition Reports
+    </button>
+    <button class="dash-tab" data-tab="borrowing">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/><line x1="12" y1="2" x2="12" y2="16"/></svg>
+      Borrowed Equipment
+    </button>
+    <button class="dash-tab" data-tab="predictions">
+      <svg viewBox="0 0 24 24"><path d="M21 21H3V3h8V1H3a2 2 0 00-2 2v18a2 2 0 002 2h18z"/><path d="M18 7l-8.5 8.5-3.5-3.5-5 5"/></svg>
+      Equipment Demand Forecast
+    </button>
+    <button class="dash-tab" data-tab="profile">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      My Profile
+    </button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="dash-main">
+
+    <!-- ─── TAB: EQUIPMENT LIST ─── -->
+    <div class="tab-panel active" id="tab-equip-list">
+
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Equipment Status Management</h2>
+          <p class="section-subtitle">View all equipment and update their condition status</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" type="text" id="maintEquipSearch" placeholder="Search equipment…"/>
+          </div>
+          <select class="search-input" id="statusFilter" style="width:auto;padding-left:12px">
+            <option value="">All Statuses</option>
+            <option value="Available">Available</option>
+            <option value="In Use">In Use</option>
+            <option value="Damaged">Damaged</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon sky"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+          <div><div class="stat-value" id="maint-total">0</div><div class="stat-label">Total Equipment</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="stat-value" id="maint-avail">0</div><div class="stat-label">Available</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div><div class="stat-value" id="maint-inuse">0</div><div class="stat-label">In Use</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+          <div><div class="stat-value" id="maint-damaged">0</div><div class="stat-label">Damaged</div></div>
+        </div>
+      </div>
+
+      <div class="equipment-list-layout">
+        <div class="data-card chart-card chart-card-donut equipment-status-sticky">
+          <div class="data-card-header">
+            <span class="data-card-title"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Equipment Status Overview</span>
+          </div>
+          <div class="chart-wrap condition-overview-chart-wrap"><canvas id="maintStatusChart"></canvas></div>
+        </div>
+
+        <div class="equipment-list-content">
+          <div class="maint-grid" id="maintEquipGrid"></div>
+        </div>
+      </div>
+
+      <!-- Also show as table for detail -->
+      <div class="data-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+            Full Equipment Table
+          </span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Equipment ID</th>
+                <th>Name</th>
+                <th>Assigned Room</th>
+                <th>Current Status</th>
+                <th>Health Status</th>
+                <th>Asset Lifecycle</th>
+                <th>Update Status</th>
+              </tr>
+            </thead>
+            <tbody id="maintTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB: CONDITION REPORTS -->
+    <div class="tab-panel" id="tab-equip-reports">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Condition Reports</h2>
+          <p class="section-subtitle">Log and view equipment condition reports</p>
+        </div>
+        <button class="btn btn-primary" id="addReportBtn">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Report
+        </button>
+      </div>
+
+      <div class="condition-reports-layout">
+        <div class="data-card chart-card chart-card-donut condition-overview-sticky">
+          <div class="data-card-header">
+            <span class="data-card-title"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Equipment Condition Overview</span>
+          </div>
+          <div class="chart-wrap condition-overview-chart-wrap"><canvas id="maintConditionChart"></canvas></div>
+        </div>
+
+        <div class="data-card condition-report-log-card" id="conditionReportLogCard">
+          <div class="data-card-header">
+            <span class="data-card-title">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+              Report Log
+            </span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Report ID</th>
+                  <th>Equipment</th>
+                  <th>Issue</th>
+                  <th>Reported By</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="reportsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: BORROWED EQUIPMENT -->
+    <div class="tab-panel" id="tab-borrowing">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Borrowed Equipment</h2>
+          <p class="section-subtitle">Manage equipment loans, schedule pick-ups, and process returns</p>
+        </div>
+      </div>
+
+      <div class="borrowing-management-layout">
+        
+        <div class="borrowing-list-column">
+          <section class="data-card overdue-alert-card" aria-labelledby="overdueHeading">
+            <div class="data-card-header">
+              <span class="data-card-title" id="overdueHeading">Overdue Equipment <span class="badge badge-damaged" id="overdueCount">0</span></span>
+              <button class="btn btn-secondary btn-sm" type="button" id="refreshOverdueBtn">Check overdue</button>
+            </div>
+            <p class="overdue-mode-note" id="overdueModeNote">Loading overdue records…</p>
+            <p class="overdue-feedback" id="overdueFeedback" role="status" aria-live="polite" hidden></p>
+            <div class="overdue-scroll-container" tabindex="0" role="region" aria-label="Overdue equipment list">
+              <div class="table-wrap overdue-table-scroll">
+                <table>
+                  <thead><tr><th>Borrower / Contact</th><th>Equipment</th><th>Due Date</th><th>Days Late</th><th>Penalty</th><th>SMS Reminder</th></tr></thead>
+                  <tbody id="overdueTableBody"><tr><td colspan="6">Loading overdue records…</td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+          <div class="data-card chart-card borrowed-analytics-card">
+            <div class="data-card-header">
+              <span class="data-card-title"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14v4M12 10v8M17 7v11"/></svg>Borrowed Equipment Analytics</span>
+            </div>
+            <div class="chart-wrap borrowed-analytics-chart-wrap"><canvas id="maintBorrowedChart"></canvas></div>
+          </div>
+
+          <!-- Active Borrowings Table -->
+          <div class="data-card borrowed-table-card maintenance-scroll-card" style="padding:0">
+            <div class="data-card-header">
+              <span class="data-card-title">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Active & Historic Borrowings
+              </span>
+              <div class="maintenance-card-actions">
+                <input class="search-input" id="returnEquipmentLookup" placeholder="Scan / enter equipment code" aria-label="Equipment code for return"/>
+                <button class="btn btn-secondary btn-sm" type="button" id="findReturnBtn">Find return</button>
+                <label class="modal-form-label" for="borrowingStatusFilter">Status</label>
+                <select class="search-input" id="borrowingStatusFilter">
+                  <option value="all">All</option>
+                  <option value="active">Borrowed / Active</option>
+                  <option value="overdue">Overdue</option>
+                  <option value="returned">Returned</option>
+                  <option value="returned-damaged">Returned (Damaged)</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-wrap maintenance-borrowing-table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Equipment</th>
+                    <th>Borrower</th>
+                    <th>Out Date & Time</th>
+                    <th>Due Date & Time</th>
+                    <th>Status</th>
+                    <th>Penalties</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="borrowingTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Borrowing Form -->
+        <div class="data-card borrowing-form-card" style="position:sticky;top:20px;padding:24px">
+          <h3 style="margin:0 0 20px;display:flex;align-items:center;gap:10px;font-size:1.1rem;color:var(--slate-800)">
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--primary);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            New Borrowing
+          </h3>
+          
+          <div class="modal-form-group" style="background:#f8fafc;padding:15px;border-radius:10px;border:1px dashed #cbd5e1;margin-bottom:20px">
+            <label class="modal-form-label" style="display:flex;justify-content:space-between">
+              <span>Scan QR Code</span>
+              <span style="font-size:0.75rem;font-weight:normal;color:var(--slate-500)">or type manually & press Enter</span>
+            </label>
+            <input class="modal-form-input" type="text" id="qrScanInput" placeholder="Focus here and scan QR..."/>
+          </div>
+
+          <form id="borrowingForm" autocomplete="off">
+            <input type="hidden" id="borrower_student_faculty_id" name="student_faculty_id"/>
+            <div class="modal-form-group">
+              <label class="modal-form-label">Equipment Code *</label>
+              <input class="modal-form-input" type="text" id="bEquipCode" name="equip_code" placeholder="e.g. EQ-005" required/>
+            </div>
+            <div class="modal-form-group">
+              <label class="modal-form-label" for="borrower_search">Borrower Search (ID or Name)</label>
+              <input class="modal-form-input" type="text" id="borrower_search" name="borrower_search" list="borrower-list" placeholder="Enter Student/Faculty ID or first/last name" autocomplete="off" required/>
+              <datalist id="borrower-list"></datalist>
+            </div>
+            <div class="modal-form-group">
+              <label class="modal-form-label" for="borrower_name">Borrower Name *</label>
+              <input class="modal-form-input" type="text" id="borrower_name" name="borrower_name" placeholder="e.g. Prof. Reyes" required/>
+            </div>
+            <div class="modal-form-group">
+              <label class="modal-form-label" for="department">Department</label>
+              <input class="modal-form-input" type="text" id="department" name="department" placeholder="e.g. IT Dept" readonly/>
+            </div>
+            <div class="modal-form-row">
+              <div class="modal-form-group">
+                <label class="modal-form-label">Borrow Date *</label>
+                <input class="modal-form-input" type="date" name="borrow_date" required/>
+              </div>
+              <div class="modal-form-group">
+                <label class="modal-form-label">Time Out *</label>
+                <input class="modal-form-input" type="time" name="time_out" required/>
+              </div>
+            </div>
+            <div class="modal-form-row">
+              <div class="modal-form-group">
+                <label class="modal-form-label">Return Date *</label>
+                <input class="modal-form-input" type="date" name="expected_return_date" required/>
+              </div>
+              <div class="modal-form-group">
+                <label class="modal-form-label">Time In *</label>
+                <input class="modal-form-input" type="time" name="expected_return_time" required/>
+              </div>
+            </div>
+            <div class="modal-form-group">
+              <label class="modal-form-label">Purpose</label>
+              <textarea class="modal-form-textarea" name="purpose" placeholder="e.g. Lecture in GD-304" rows="2"></textarea>
+            </div>
+            <button type="button" class="btn btn-primary" id="saveBorrowingBtn" style="width:100%;margin-top:10px">
+              Record Borrowing
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: EQUIPMENT DEMAND FORECAST -->
+    <div class="tab-panel" id="tab-predictions">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Equipment Demand Forecast</h2>
+          <p class="section-subtitle">Predicted equipment demand trends and high-demand items requiring maintenance attention</p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div style="padding: 20px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 12px;">
+          <div style="font-size: 12px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; font-weight: 700;">Forecast Trend</div>
+          <div style="font-size: 22px; font-weight: 700; color: #1e40af;" id="maintEquipTrend">—</div>
+        </div>
+        <div style="padding: 20px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 12px;">
+          <div style="font-size: 12px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; font-weight: 700;">Peak Predicted Demand</div>
+          <div style="font-size: 22px; font-weight: 700; color: #b45309;" id="maintEquipPeak">—</div>
+        </div>
+        <div style="padding: 20px; background: #fce7f3; border-left: 4px solid #ec4899; border-radius: 12px;">
+          <div style="font-size: 12px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; font-weight: 700;">Avg Forecasted Demand</div>
+          <div style="font-size: 22px; font-weight: 700; color: #be185d;" id="maintEquipAvg">—</div>
+        </div>
+      </div>
+
+      <div class="data-card chart-card maintenance-forecast-card" style="margin-bottom: 24px;">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><path d="M21 21H3V3h8V1H3a2 2 0 00-2 2v18a2 2 0 002 2h18z"/><path d="M18 7l-8.5 8.5-3.5-3.5-5 5"/></svg>
+            30-Day Equipment Demand Forecast
+          </span>
+        </div>
+        <div class="chart-wrap maintenance-forecast-chart-wrap"><canvas id="maintEquipDemandChart"></canvas></div>
+        <div style="padding: 15px; font-size: 13px; color: #64748b; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+          <strong>Method:</strong> 7-day Moving Average + Linear Regression | 
+          <strong>Confidence:</strong> <span id="maintForecastConfidence">—</span>%
+        </div>
+      </div>
+
+      <div class="data-card maintenance-top-equipment-card" style="margin-bottom: 24px;">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><path d="M20.3 3H3.7A2.7 2.7 0 001 5.7v12.6A2.7 2.7 0 003.7 21h16.6a2.7 2.7 0 002.7-2.7V5.7A2.7 2.7 0 0020.3 3z"/><path d="M3 8h18M8 3v18M16 3v18"/></svg>
+            Top 10 Most Frequently Borrowed Equipment (90 Days)
+          </span>
+        </div>
+        <div class="maintenance-top-equipment-scroll">
+          <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 2px solid #e2e8f0;">
+                <th style="padding: 12px; text-align: left; color: #475569; font-weight: 700;">Equipment Code</th>
+                <th style="padding: 12px; text-align: left; color: #475569; font-weight: 700;">Name</th>
+                <th style="padding: 12px; text-align: center; color: #475569; font-weight: 700;">Total Borrows</th>
+                <th style="padding: 12px; text-align: center; color: #475569; font-weight: 700;">Avg/Day</th>
+                <th style="padding: 12px; text-align: center; color: #475569; font-weight: 700;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="maintTopEquipTable">
+              <tr><td colspan="5" style="padding: 20px; text-align: center; color: #94a3b8;">Loading equipment demand data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Maintenance Priority Insights
+          </span>
+        </div>
+        <div id="maintPredictionInsights" style="padding: 20px; font-size: 14px; line-height: 1.8; color: #475569;">
+          <p>Loading predictive insights...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: PROFILE -->
+    <div class="tab-panel" id="tab-profile">
+      <div class="profile-cards-container">
+
+        <!-- Profile Information Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <span>
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profile Information
+            </span>
+          </div>
+          <div class="profile-card-content">
+            <div class="profile-card-body">
+              <div class="profile-avatar-section">
+                <div class="profile-avatar" id="profileAvatarDisplay">--</div>
+                <div class="profile-avatar-info">Member since <span id="profileCreated">—</span></div>
+              </div>
+              <div class="modal-form-group">
+                <label class="modal-form-label">Full Name</label>
+                <input class="modal-form-input" type="text" id="profileFullName" placeholder="Your full name"/>
+              </div>
+              <div class="modal-form-group">
+                <label class="modal-form-label">Email Address</label>
+                <input class="modal-form-input" type="email" id="profileEmail" placeholder="your@email.com"/>
+              </div>
+              <div class="modal-form-row">
+                <div class="modal-form-group">
+                  <label class="modal-form-label">Username</label>
+                  <input class="modal-form-input" type="text" id="profileUsername" disabled style="opacity:.6;cursor:not-allowed"/>
+                </div>
+                <div class="modal-form-group">
+                  <label class="modal-form-label">Role</label>
+                  <input class="modal-form-input" type="text" id="profileRole" disabled style="opacity:.6;cursor:not-allowed;text-transform:capitalize"/>
+                </div>
+              </div>
+            </div>
+            <div class="profile-card-footer">
+              <button class="btn btn-primary" id="saveProfileBtn">
+                <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                Save Profile
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <span>
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Change Password
+            </span>
+          </div>
+          <div class="profile-card-content">
+            <div class="profile-card-body profile-form-content">
+              <form id="passwordForm">
+                <div class="modal-form-group">
+                  <label class="modal-form-label">Current Password</label>
+                  <div style="position: relative; display: flex; align-items: center;"><input class="modal-form-input" type="password" id="currentPassword" placeholder="Enter current password" style="width: 100%; padding-right: 36px;"/><i class="fa-solid fa-eye" onclick="togglePw('currentPassword', this)" style="position: absolute; right: 12px; cursor: pointer; color: var(--slate-400);"></i></div>
+                </div>
+                <div class="modal-form-group">
+                  <label class="modal-form-label">New Password</label>
+                  <div style="position: relative; display: flex; align-items: center;"><input class="modal-form-input" type="password" id="newPassword" placeholder="Min. 6 characters" style="width: 100%; padding-right: 36px;"/><i class="fa-solid fa-eye" onclick="togglePw('newPassword', this)" style="position: absolute; right: 12px; cursor: pointer; color: var(--slate-400);"></i></div>
+                </div>
+                <div class="modal-form-group">
+                  <label class="modal-form-label">Confirm New Password</label>
+                  <div style="position: relative; display: flex; align-items: center;"><input class="modal-form-input" type="password" id="confirmNewPassword" placeholder="Repeat new password" style="width: 100%; padding-right: 36px;"/><i class="fa-solid fa-eye" onclick="togglePw('confirmNewPassword', this)" style="position: absolute; right: 12px; cursor: pointer; color: var(--slate-400);"></i></div>
+                </div>
+              </form>
+            </div>
+            <div class="profile-card-footer">
+              <button type="button" class="btn btn-primary" id="savePasswordBtn">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                Update Password
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <span>
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Recent Activity
+            </span>
+            <a href="#" class="btn-text" id="viewAllActivityBtn" style="display:none;margin-left:auto;margin-right:-8px">View All</a>
+          </div>
+          <div class="profile-card-content">
+            <ul class="activity-list" id="profileActivityList" style="list-style:none;padding:0;margin:0">
+              <li style="text-align:center;color:var(--slate-400);padding:40px 0">Loading activities...</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL — New Report -->
+  <div class="modal-overlay hidden" id="reportModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">New Condition Report</h3>
+        <button class="modal-close" data-close="reportModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-form-group">
+          <label class="modal-form-label">Equipment</label>
+          <select class="modal-form-select" id="reportEquip">
+            <option value="">— Select Equipment —</option>
+          </select>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Reported By</label>
+          <input class="modal-form-input" type="text" id="reportReportedBy" value="Carlos Mendoza" readonly/>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Issue / Description</label>
+          <textarea class="modal-form-textarea" id="reportIssue" placeholder="Describe the issue or condition observed…"></textarea>
+        </div>
+        <div class="modal-form-row">
+          <div class="modal-form-group">
+            <label class="modal-form-label">Severity</label>
+            <select class="modal-form-select" id="reportSeverity">
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+          <div class="modal-form-group">
+            <label class="modal-form-label">Recommended Action</label>
+            <select class="modal-form-select" id="reportAction">
+              <option value="Monitor">Monitor</option>
+              <option value="Repair">Repair</option>
+              <option value="Replace">Replace</option>
+              <option value="Decommission">Decommission</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-form-row">
+          <div class="modal-form-group">
+            <label class="modal-form-label" for="reportDamageLevel">Damage level</label>
+            <select class="modal-form-select" id="reportDamageLevel">
+              <option value="None">Observation / No damage</option>
+              <option value="Not Critical">Not Critical — Repair</option>
+              <option value="Critical">Critical — For Disposal</option>
+            </select>
+          </div>
+          <div class="modal-form-group">
+            <label class="modal-form-label" for="reportAssessedCost">Repair / replacement cost</label>
+            <input class="modal-form-input" type="number" id="reportAssessedCost" min="0" max="9999999999.99" step="0.01" placeholder="Enter assessed cost"/>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close="reportModal">Cancel</button>
+        <button class="btn btn-primary" id="saveReportBtn">
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/></svg>
+          Submit Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL - Return Condition Check -->
+  <div class="modal-overlay hidden" id="returnConditionModal">
+    <div class="modal return-condition-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Return Condition Check</h3>
+        <button class="modal-close" data-close="returnConditionModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="return-condition-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <h3 class="return-condition-title">What is the condition of the returned equipment?</h3>
+        <p class="return-condition-equipment" id="returnConditionEquipment">Select the returned equipment condition.</p>
+        <div class="modal-form-group">
+          <label class="modal-form-label" for="returnBorrowerId">Student/Faculty ID (required for unlinked damaged loans)</label>
+          <input class="modal-form-input" id="returnBorrowerId" placeholder="Registered borrower ID"/>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label" for="returnDamageLevel">Damage level (damaged returns)</label>
+          <select class="modal-form-select" id="returnDamageLevel">
+            <option value="Not Critical">Not Critical — Standard repair</option>
+            <option value="Critical">Critical — For Disposal, admin approval required</option>
+          </select>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label" for="returnDamageReason">Damage / disposal reason</label>
+          <textarea class="modal-form-textarea" id="returnDamageReason" placeholder="Describe the damage" required></textarea>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label" for="returnDamageCost">Assessed repair / replacement cost (damage fee)</label>
+          <input class="modal-form-input" id="returnDamageCost" type="number" min="0" max="9999999999.99" step="0.01" placeholder="Enter amount; 0 waives the fee" required/>
+        </div>
+        <div class="return-condition-actions">
+          <button class="return-condition-option" id="returnGoodBtn" type="button">
+            <span class="return-condition-option-icon">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <span>
+              <strong>Good Condition</strong>
+              <small>Mark returned and make equipment available.</small>
+            </span>
+          </button>
+          <button class="return-condition-option is-damaged" id="returnDamagedBtn" type="button">
+            <span class="return-condition-option-icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </span>
+            <span>
+              <strong>Damaged / Needs Repair</strong>
+              <small>Save assessment, attach the damage fee, and route for repair or disposal.</small>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close="returnConditionModal">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — Logout -->
+  <div class="modal-overlay hidden" id="logoutModal">
+    <div class="modal logout-modal">
+      <div class="modal-body">
+        <div class="logout-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+        <h3>Sign Out</h3>
+        <p>Are you sure you want to sign out?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close="logoutModal">Stay</button>
+        <button class="btn btn-danger" id="confirmLogoutBtn">Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="../backend/js/borrower-search.js?v=2"></script>
+  <script src="../backend/js/overdue.js?v=1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>window.Chart || document.write('<script src="/gcst-system/backend/libs/chartjs/chart.umd.min.js"><\/script>');</script>
+  <script src="/gcst-system/backend/js/script.js?v=24"></script>
+  <script>
+    // ========== LOAD MAINTENANCE EQUIPMENT PREDICTIONS ==========
+    async function loadMaintPredictions() {
+      try {
+        const response = await api.get(API.predictionsReport, { report: 'all' });
+        if (!response.data) {
+          console.warn('Maintenance predictions not available:', response.message);
+        }
+
+        const data = response.data || {};
+        if (!response.success) {
+          console.warn('Maintenance predictions not available:', response.message);
+        }
+
+        // Equipment Demand Forecast
+        if (data.equipment_forecast && Array.isArray(data.equipment_forecast.forecast) && data.equipment_forecast.forecast.length > 0) {
+          const forecast = data.equipment_forecast;
+          const labels = forecast.forecast.map(f => f.label);
+          const predictions = forecast.forecast.map(f => f.predicted);
+
+          renderChart('maintEquipDemandChart', 'line', labels, predictions, {
+            label: 'Predicted Equipment Demand',
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 3,
+            borderWidth: 2,
+          });
+
+          // Update trend
+          const trendEl = document.getElementById('maintEquipTrend');
+          if (trendEl) {
+            const trend = forecast.trend_direction || 'stable';
+            trendEl.textContent = trend.charAt(0).toUpperCase() + trend.slice(1);
+            if (trend === 'increasing') trendEl.style.color = '#dc2626';
+            else if (trend === 'decreasing') trendEl.style.color = '#10b981';
+          }
+
+          // Update confidence
+          const confidence = forecast.regression?.r_squared ? Math.round(forecast.regression.r_squared * 100) : 0;
+          const confidenceEl = document.getElementById('maintForecastConfidence');
+          if (confidenceEl) confidenceEl.textContent = confidence;
+
+          // Peak and average
+          const predictions_array = forecast.forecast.map(f => f.predicted);
+          const peakEl = document.getElementById('maintEquipPeak');
+          if (peakEl) peakEl.textContent = Math.max(...predictions_array) || '—';
+
+          const avgEl = document.getElementById('maintEquipAvg');
+          if (avgEl) avgEl.textContent = Math.round(predictions_array.reduce((a, b) => a + b, 0) / predictions_array.length) || '—';
+        } else {
+          renderChart('maintEquipDemandChart', 'line', [], [], {
+            label: 'Predicted Equipment Demand',
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+          });
+          const trendEl = document.getElementById('maintEquipTrend');
+          if (trendEl) trendEl.textContent = 'Insufficient data';
+          const confidenceEl = document.getElementById('maintForecastConfidence');
+          if (confidenceEl) confidenceEl.textContent = '0';
+          const peakEl = document.getElementById('maintEquipPeak');
+          if (peakEl) peakEl.textContent = '-';
+          const avgEl = document.getElementById('maintEquipAvg');
+          if (avgEl) avgEl.textContent = '-';
+        }
+
+        // Top Equipment
+        if (data.top_equipment && Array.isArray(data.top_equipment)) {
+          const topEquipTable = document.getElementById('maintTopEquipTable');
+          if (topEquipTable) {
+            topEquipTable.innerHTML = data.top_equipment.length > 0
+              ? data.top_equipment.map(eq => `
+                  <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 12px; font-weight: 700; color: #3b82f6;">${escapeHtml(eq.equip_code)}</td>
+                    <td style="padding: 12px;">${escapeHtml(eq.name)}</td>
+                    <td style="padding: 12px; text-align: center; font-weight: 700;">${eq.total_borrows}</td>
+                    <td style="padding: 12px; text-align: center; color: #64748b;">${parseFloat(eq.avg_per_day).toFixed(1)}</td>
+                    <td style="padding: 12px; text-align: center;">
+                      <span class="badge badge-approved" style="font-size: 11px; padding: 4px 8px;">High Demand</span>
+                    </td>
+                  </tr>
+                `).join('')
+              : '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #94a3b8;">No equipment demand data available.</td></tr>';
+          }
+        } else {
+          const topEquipTable = document.getElementById('maintTopEquipTable');
+          if (topEquipTable) {
+            topEquipTable.innerHTML = '<tr><td colspan="5" style="padding: 20px; text-align: center; color: #94a3b8;">No equipment demand data available.</td></tr>';
+          }
+        }
+
+        // Insights
+        if (data.equipment_forecast && data.equipment_forecast.regression) {
+          const insights = document.getElementById('maintPredictionInsights');
+          if (insights) {
+            const forecast = data.equipment_forecast;
+            const trend = forecast.trend_direction === 'increasing' ? 'rising' : forecast.trend_direction === 'decreasing' ? 'falling' : 'stable';
+            const trendColor = forecast.trend_direction === 'increasing' ? '#dc2626' : forecast.trend_direction === 'decreasing' ? '#10b981' : '#f59e0b';
+            
+            insights.innerHTML = `
+              <strong style="color: #1e40af;">📊 Equipment Demand Analysis:</strong>
+              <br/>Equipment borrowing demand is <strong style="color: ${trendColor};">${trend}</strong>.
+              <br/><br/>
+              <strong style="color: #1e40af;">🔧 Maintenance Recommendations:</strong>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>Prioritize maintenance for top 10 most-borrowed items to reduce downtime</li>
+                <li>Monitor high-demand equipment more frequently for condition issues</li>
+                <li>Plan preventive maintenance during low-demand periods</li>
+                <li>Stock replacement parts for frequently-damaged consumables</li>
+              </ul>
+              <strong style="color: #1e40af;">📈 Forecast Confidence:</strong> 
+              <span style="color: #10b981; font-weight: 700;">${forecast.regression?.r_squared > 0.5 ? 'High' : 'Moderate'}</span>
+            `;
+          }
+        } else {
+          const forecast = data.equipment_forecast || {};
+          const insights = document.getElementById('maintPredictionInsights');
+          if (insights) {
+            insights.innerHTML = `
+              <strong style="color: #1e40af;">Equipment Demand Analysis:</strong>
+              <br/>${escapeHtml(forecast.message || response.message || 'Not enough historical data for prediction generation.')}
+              <br/><br/>
+              Required records: <strong>${forecast.required_records ?? '-'}</strong>.
+              Available records: <strong>${forecast.available_records ?? 0}</strong>.
+            `;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading maintenance predictions:', error);
+      }
+    }
+
+    // Load predictions when tab is opened
+    document.querySelector('.dash-tab[data-tab="predictions"]')?.addEventListener('click', loadMaintPredictions);
+    // Also load on initial page load
+    setTimeout(loadMaintPredictions, 800);
+  </script>
+</body>
+</html>
+

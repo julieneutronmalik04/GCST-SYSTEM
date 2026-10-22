@@ -1,0 +1,2759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — GCST RMS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css?v=20"/>
+  <style>
+    .notif-item {
+      cursor: pointer;
+    }
+
+    .rooms-visual-section {
+      align-items: flex-start;
+    }
+
+    .rooms-status-card,
+    .rooms-chart-card {
+      height: 500px;
+      min-height: 0;
+      background: #fff;
+      border-radius: 20px;
+    }
+
+    .rooms-status-card .room-grid-container {
+      flex: 1;
+      max-height: 410px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .rooms-status-card .room-grid {
+      max-height: 320px;
+      overflow-y: auto;
+      align-content: flex-start;
+      padding-right: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #60a5fa #eff6ff;
+    }
+
+    .rooms-status-card .room-grid::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .rooms-status-card .room-grid::-webkit-scrollbar-track {
+      background: #eff6ff;
+      border-radius: 999px;
+    }
+
+    .rooms-status-card .room-grid::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #93c5fd, #2563eb);
+      border: 2px solid #eff6ff;
+      border-radius: 999px;
+    }
+
+    .rooms-status-card .room-grid::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #60a5fa, #1d4ed8);
+    }
+
+    .rooms-chart-card .rooms-donut-wrap {
+      flex: none;
+      height: 300px;
+      min-height: 300px;
+      max-height: 300px;
+    }
+
+    .rooms-chart-card .rooms-donut-wrap canvas {
+      max-height: 260px;
+    }
+
+    .res-middle-section {
+      align-items: flex-start;
+    }
+
+    .res-room-grid-card {
+      border-radius: 20px;
+      background: #fff;
+    }
+
+    .approve-room-grid-scroll {
+      height: 380px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #60a5fa #eff6ff;
+    }
+
+    .approve-room-grid-scroll #room-grid-approve {
+      align-content: flex-start;
+      min-height: 0;
+    }
+
+    .approve-room-grid-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .approve-room-grid-scroll::-webkit-scrollbar-track {
+      background: #eff6ff;
+      border-radius: 999px;
+    }
+
+    .approve-room-grid-scroll::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #93c5fd, #2563eb);
+      border: 2px solid #eff6ff;
+      border-radius: 999px;
+    }
+
+    .approve-room-grid-scroll::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #60a5fa, #1d4ed8);
+    }
+
+    .res-weekly-summary-card {
+      align-self: flex-start;
+    }
+
+    .schedule-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5eefc;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .schedule-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .schedule-filter-group {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .schedule-filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .schedule-filter-field label {
+      font-size: .68rem;
+      font-weight: 800;
+      color: #2563eb;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .schedule-filter-field input {
+      min-height: 38px;
+      min-width: 140px;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      background: #fff;
+      color: #172554;
+      font: inherit;
+      font-size: .82rem;
+      font-weight: 700;
+      padding: 8px 11px;
+      outline: none;
+    }
+
+    .schedule-filter-field input:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96,165,250,.2);
+    }
+
+    .schedule-consolidated-note {
+      display: none;
+      padding: 7px 10px;
+      border: 1px solid #fed7aa;
+      border-radius: 999px;
+      background: #fff7ed;
+      color: #c2410c;
+      font-size: .72rem;
+      font-weight: 800;
+    }
+
+    .schedule-consolidated-note.active {
+      display: inline-flex;
+    }
+
+    .schedule-filter-label {
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #2563eb;
+    }
+
+    .schedule-calendar-wrap {
+      overflow-x: auto;
+      padding: 18px 24px 24px;
+      scrollbar-width: thin;
+      scrollbar-color: #60a5fa #eff6ff;
+    }
+
+    .schedule-calendar-wrap::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .schedule-calendar-wrap::-webkit-scrollbar-track {
+      background: #eff6ff;
+      border-radius: 999px;
+    }
+
+    .schedule-calendar-wrap::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, #93c5fd, #2563eb);
+      border-radius: 999px;
+    }
+
+    .schedule-calendar {
+      min-width: 920px;
+      display: grid;
+      grid-template-columns: 90px repeat(6, minmax(130px, 1fr));
+      border: 1px solid #dbeafe;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .schedule-cell {
+      min-height: 92px;
+      padding: 10px;
+      border-right: 1px solid #e5eefc;
+      border-bottom: 1px solid #e5eefc;
+      background: #fff;
+    }
+
+    .schedule-cell:nth-child(7n) {
+      border-right: 0;
+    }
+
+    .schedule-day-head,
+    .schedule-time-head,
+    .schedule-time-cell {
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-size: .76rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .schedule-day-head,
+    .schedule-time-head {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .schedule-time-cell {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 14px;
+      color: #64748b;
+    }
+
+    .schedule-class-block {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+      min-height: 72px;
+      padding: 10px 11px;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid #2563eb;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%);
+      box-shadow: 0 8px 18px rgba(37, 99, 235, .08);
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+    .schedule-class-block:hover,
+    .schedule-class-block:focus-visible {
+      border-color: #60a5fa;
+      background: linear-gradient(180deg, #ffffff 0%, #dbeafe 100%);
+      box-shadow: 0 14px 28px rgba(37, 99, 235, .16);
+      outline: none;
+      transform: translateY(-2px);
+    }
+
+    .schedule-class-block.warning {
+      border-color: #fdba74;
+      border-left-color: #f97316;
+      background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%);
+      box-shadow: 0 10px 22px rgba(249, 115, 22, .14);
+    }
+
+    .schedule-class-block.warning small {
+      color: #c2410c;
+    }
+
+    .schedule-class-block strong {
+      color: #172554;
+      font-size: .82rem;
+      line-height: 1.2;
+    }
+
+    .schedule-class-block span {
+      color: #475569;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    .schedule-class-block small {
+      color: #2563eb;
+      font-size: .7rem;
+      font-weight: 800;
+    }
+
+    .schedule-empty {
+      grid-column: 1 / -1;
+      padding: 46px 20px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: .88rem;
+      font-weight: 600;
+      background: #fff;
+    }
+
+    .schedule-days {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .schedule-day-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 48px;
+      padding: 8px 10px;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      color: #1e3a8a;
+      background: #eff6ff;
+      font-size: .78rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .schedule-conflict-badge {
+      display: inline-flex;
+      align-items: center;
+      width: max-content;
+      max-width: 190px;
+      margin-top: 6px;
+      padding: 5px 8px;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: .68rem;
+      font-weight: 800;
+      line-height: 1.2;
+      white-space: normal;
+    }
+
+    .schedule-modal-footer {
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .schedule-modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .manage-icon-btn {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #2563eb;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+
+    .manage-icon-btn:hover {
+      background: #dbeafe;
+      border-color: #60a5fa;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, .12);
+    }
+
+    .manage-icon-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .manage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: #60a5fa #eff6ff;
+    }
+
+    .manage-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .manage-list::-webkit-scrollbar-track {
+      background: #eff6ff;
+      border-radius: 999px;
+    }
+
+    .manage-list::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #93c5fd, #2563eb);
+      border: 2px solid #eff6ff;
+      border-radius: 999px;
+    }
+
+    .manage-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid #dbeafe;
+      border-radius: 14px;
+      background: #f8fbff;
+    }
+
+    .manage-row-title {
+      color: #172554;
+      font-size: .88rem;
+      font-weight: 800;
+    }
+
+    .manage-row-meta {
+      margin-top: 2px;
+      color: #64748b;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    .manage-row-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .section-editor-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .section-editor-row .modal-form-group {
+      flex: 1 1 260px;
+      margin-bottom: 0;
+    }
+
+    .section-editor-row .btn {
+      min-height: 48px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .schedule-toolbar {
+        align-items: stretch;
+      }
+
+      .schedule-toolbar-left,
+      .schedule-toolbar .btn {
+        width: 100%;
+      }
+
+      .schedule-toolbar-left .modal-form-select {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="dashboard-page">
+
+
+<header class="dash-header">
+  <a href="/gcst-system/frontend/login.html" class="dash-header-logo">
+    <div class="dash-header-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    <div class="dash-header-logo-text">Granby Colleges of Science and Technology<small>Room Reservation & Equipment Inventory</small></div>
+  </a>
+  <div class="dash-header-divider"></div>
+  <div class="dash-header-title"><span>Admin Dashboard</span></div>
+  <div class="dash-header-actions">
+    <button class="icon-btn" title="Notifications" id="notifBtn">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="notif-badge"></span>
+    </button>
+    <button class="profile-btn" id="profileBtn">
+      <div class="profile-avatar">AD</div>
+      <div><div class="profile-name">Administrator</div><div class="profile-role">Admin</div></div>
+    </button>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="dash-tabs" id="dashTabs">
+  <button class="dash-tab active" data-tab="dashboard">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Overview
+  </button>
+  <button class="dash-tab" data-tab="users">
+    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    User Management
+  </button>
+  <button class="dash-tab" data-tab="visual-dashboard">
+    <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l3-3 4 4 5-8"/><path d="M18 7h3v3"/></svg>
+    Visual Dashboard
+  </button>
+  <button class="dash-tab" data-tab="rooms">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+    Manage Rooms
+  </button>
+  <button class="dash-tab" data-tab="schedules">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+    School Schedules
+  </button>
+  <button class="dash-tab" data-tab="equipment">
+    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    Manage Equipment
+  </button>
+  <button class="dash-tab" data-tab="reservations">
+    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    Approve Reservations
+  </button>
+  <button class="dash-tab" data-tab="profile">
+    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    My Profile
+  </button>
+</nav>
+
+<!--  MAIN  -->
+<main class="dash-main">
+
+  <!-- TAB: DASHBOARD OVERVIEW -->
+  <div class="tab-panel active" id="tab-dashboard">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Dashboard Overview</h2>
+        <p class="section-subtitle">Real-time statistics and recent activities</p>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+        <div><div class="stat-value" id="dash-total-rooms">0</div><div class="stat-label">Total Rooms</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon sky"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div><div class="stat-value" id="dash-total-equip">0</div><div class="stat-label">Total Equipment</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg></div>
+        <div><div class="stat-value" id="dash-borrowed-equip">0</div><div class="stat-label">In-Use Equipment</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+        <div><div class="stat-value" id="dash-pending-res">0</div><div class="stat-label">Pending Reservations</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg></div>
+        <div><div class="stat-value" id="dash-total-users">0</div><div class="stat-label">Total Users</div></div>
+      </div>
+    </div>
+
+    <!-- Row 2: Main Analytics (Left: Bar Chart, Right: Donut Chart) -->
+    <div class="analytics-grid-refactored">
+      <div class="data-card chart-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14v4M12 10v8M17 7v11"/></svg>
+            Reservation Analytics
+          </span>
+          <div class="chart-toggle-buttons">
+            <button class="toggle-btn active" data-period="day">Day</button>
+            <button class="toggle-btn" data-period="week">Week</button>
+            <button class="toggle-btn" data-period="month">Month</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="adminReservationsBarChart"></canvas></div>
+      </div>
+
+      <div class="data-card chart-card chart-card-donut">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            Room Status Overview
+          </span>
+        </div>
+        <div class="chart-wrap donut-center-container">
+          <canvas id="adminRoomStatusChart"></canvas>
+          <div class="donut-center-text">
+            <div class="donut-percentage" id="roomStatusPercentage">0%</div>
+            <div class="donut-label">Occupied</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Room Status & Activities Timeline -->
+    <div class="admin-preview-space-refactored">
+      <div class="data-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            Room Status Today
+          </span>
+          <a href="#" class="btn-text" data-goto="rooms">See All</a>
+        </div>
+        <div class="room-list-container">
+          <ul class="room-status-list" id="dashRoomList"></ul>
+        </div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Users Recent Activities
+          </span>
+        </div>
+        <div class="activity-timeline-container">
+          <ul class="activity-timeline" id="dashActivityList"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 4: Secondary Analytics (Bar Chart & Donut Chart) -->
+    <div class="analytics-grid-refactored">
+      <div class="data-card chart-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 9-9"/><path d="M21 7v6h-6"/></svg>
+            Reservation Trends
+          </span>
+          <div class="chart-toggle-buttons">
+            <button class="toggle-btn" data-trend-period="day">Day</button>
+            <button class="toggle-btn" data-trend-period="week">Week</button>
+            <button class="toggle-btn active" data-trend-period="month">Month</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="adminReservationTrendChart"></canvas></div>
+      </div>
+
+      <div class="data-card chart-card chart-card-donut">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Equipment Status Overview
+          </span>
+        </div>
+        <div class="chart-wrap donut-center-container">
+          <canvas id="adminEquipmentStatusChart"></canvas>
+          <div class="donut-center-text">
+            <div class="donut-percentage" id="equipStatusPercentage">0%</div>
+            <div class="donut-label">In Use</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 5: Upcoming Reservations & Equipment Inventory -->
+    <div class="admin-preview-space-refactored">
+      <div class="data-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Upcoming Reservations
+          </span>
+          <a href="#" class="btn-text" data-goto="reservations">See All</a>
+        </div>
+        <div class="reservations-list-container">
+          <ul class="upcoming-reservations-list" id="dashResList"></ul>
+        </div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+            Equipment Inventory
+          </span>
+          <a href="#" class="btn-text" data-goto="equipment">See All</a>
+        </div>
+        <div class="equipment-inventory-container">
+          <ul class="equipment-summary-list" id="dashEquipList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: USERS -->
+  <div class="tab-panel" id="tab-users">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div><div class="stat-value" id="stat-total-users">0</div><div class="stat-label">Total Users</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon sky"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M2 12h2m18 0h2"/></svg></div>
+        <div><div class="stat-value" id="stat-admin-users">0</div><div class="stat-label">Admins</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div><div class="stat-value" id="stat-faculty-users">0</div><div class="stat-label">Faculty</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div>
+        <div><div class="stat-value" id="stat-maint-users">0</div><div class="stat-label">Maintenance</div></div>
+      </div>
+    </div>
+
+    <p class="vip-role-help">Assign the VIP role to priority requesters. VIP accounts use the reservation dashboard; approval actions remain restricted to Admin accounts.</p>
+    <div class="data-card">
+      <div class="data-card-header">
+        <span class="data-card-title">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          System Users
+        </span>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <select class="search-input" id="userRoleFilter" style="width:auto;padding-left:12px">
+            <option value="">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="faculty">Faculty</option>
+            <option value="vip">VIP</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" type="text" id="userSearch" placeholder="Search users…"/>
+          </div>
+          <button class="btn btn-primary" id="addUserBtn">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add User
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody id="adminUserTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: VISUAL DASHBOARD -->
+  <div class="tab-panel" id="tab-visual-dashboard">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Visual Dashboard</h2>
+        <p class="section-subtitle">Reservation demand forecasting and room utilization insights</p>
+      </div>
+      <button class="btn btn-primary" data-open-report="visual-dashboard">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Generate Reports
+      </button>
+    </div>
+
+    <div class="analytics-grid-refactored visual-dashboard-grid">
+      <div class="data-card chart-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 9-9"/><path d="M21 7v6h-6"/></svg>
+            Peak Demand Forecasting
+          </span>
+          <span class="high-demand-badge" id="highDemandAlertBadge">Normal Demand</span>
+        </div>
+        <div class="chart-wrap"><canvas id="peakDemandForecastChart"></canvas></div>
+      </div>
+
+      <div class="data-card chart-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16h8M7 11h12M7 6h4"/></svg>
+            Room Utilization Rate
+          </span>
+        </div>
+        <div class="chart-wrap"><canvas id="roomUtilizationRateChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="data-card replenishment-forecast-card">
+      <div class="data-card-header">
+        <span class="data-card-title">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.3 7L12 12l8.7-5"/><path d="M12 22V12"/></svg>
+          Replenishment Forecast
+        </span>
+      </div>
+      <div class="inventory-alert-summary" id="inventoryAlertSummary">Loading inventory forecast...</div>
+      <div class="replenishment-list" id="replenishmentForecastList"></div>
+    </div>
+
+    <!-- Row 5: Predictive Analytics Section -->
+    <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #e5eefc;">
+      <h3 style="font-size: 18px; font-weight: 700; color: #1e40af; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px;"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/><path d="M9 13l2 2 4-4"/></svg>
+        Predictive Analytics &amp; Forecasting
+      </h3>
+      
+      <div class="analytics-grid-refactored">
+        <div class="data-card chart-card">
+          <div class="data-card-header">
+            <span class="data-card-title">
+              <svg viewBox="0 0 24 24"><path d="M21 21H3V3h8V1H3a2 2 0 00-2 2v18a2 2 0 002 2h18z"/><path d="M18 7l-8.5 8.5-3.5-3.5-5 5"/></svg>
+              Reservation Forecast (12 Months)
+            </span>
+          </div>
+          <div class="chart-wrap"><canvas id="reservationForecastChart"></canvas></div>
+          <div style="padding: 15px; font-size: 13px; color: #64748b; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+            <strong>Method:</strong> Linear Regression on historical monthly reservations | 
+            <strong>Confidence:</strong> <span id="forecastConfidence">—</span>%
+          </div>
+        </div>
+
+        <div class="data-card chart-card">
+          <div class="data-card-header">
+            <span class="data-card-title">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              Forecasted Equipment Demand
+            </span>
+          </div>
+          <div class="chart-wrap"><canvas id="equipmentDemandForecastChart"></canvas></div>
+          <div style="padding: 15px; font-size: 13px; color: #64748b; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+            <strong>Method:</strong> 7-day Moving Average + Linear Regression | 
+            <strong>Trend:</strong> <span id="equipmentTrend" style="color: #059669; font-weight: 700;">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-grid-refactored" style="margin-top: 20px;">
+        <div class="data-card chart-card">
+          <div class="data-card-header">
+            <span class="data-card-title">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Top 10 Most Frequently Used Rooms
+            </span>
+          </div>
+          <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 2px solid #e2e8f0;">
+                <th style="padding: 10px; text-align: left; color: #475569; font-weight: 700;">Room</th>
+                <th style="padding: 10px; text-align: center; color: #475569; font-weight: 700;">Bookings</th>
+                <th style="padding: 10px; text-align: center; color: #475569; font-weight: 700;">Avg/Day</th>
+              </tr>
+            </thead>
+            <tbody id="topRoomsTable">
+              <tr><td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8;">Loading room usage data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="data-card chart-card">
+          <div class="data-card-header">
+            <span class="data-card-title">
+              <svg viewBox="0 0 24 24"><path d="M20.3 3H3.7A2.7 2.7 0 001 5.7v12.6A2.7 2.7 0 003.7 21h16.6a2.7 2.7 0 002.7-2.7V5.7A2.7 2.7 0 0020.3 3z"/><path d="M3 8h18M8 3v18M16 3v18"/></svg>
+              Top 10 Most Frequently Borrowed Equipment
+            </span>
+          </div>
+          <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 2px solid #e2e8f0;">
+                <th style="padding: 10px; text-align: left; color: #475569; font-weight: 700;">Equipment</th>
+                <th style="padding: 10px; text-align: center; color: #475569; font-weight: 700;">Borrows</th>
+                <th style="padding: 10px; text-align: center; color: #475569; font-weight: 700;">Avg/Day</th>
+              </tr>
+            </thead>
+            <tbody id="topEquipmentTable">
+              <tr><td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8;">Loading equipment usage data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="data-card" style="margin-top: 20px;">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Forecast Summary &amp; Insights
+          </span>
+        </div>
+        <div id="forecastSummary" style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+          <div style="padding: 15px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 8px;">
+            <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">PREDICTED PEAK DAY</div>
+            <div style="font-size: 18px; font-weight: 700; color: #1e40af;" id="predictedPeakDay">—</div>
+          </div>
+          <div style="padding: 15px; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 8px;">
+            <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">PREDICTED PEAK VALUE</div>
+            <div style="font-size: 18px; font-weight: 700; color: #15803d;" id="predictedPeakValue">—</div>
+          </div>
+          <div style="padding: 15px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px;">
+            <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">FORECAST TREND</div>
+            <div style="font-size: 18px; font-weight: 700; color: #b45309;" id="forecastTrend">—</div>
+          </div>
+          <div style="padding: 15px; background: #fce7f3; border-left: 4px solid #ec4899; border-radius: 8px;">
+            <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">AVERAGE FORECASTED</div>
+            <div style="font-size: 18px; font-weight: 700; color: #be185d;" id="averageForecasted">—</div>
+          </div>
+        </div>
+        <div id="forecastSummaryText" style="padding: 15px; background: #f1f5f9; border-radius: 8px; margin-top: 15px; font-size: 13px; color: #475569; line-height: 1.6;">
+          Analysis loading...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--  TAB: ROOMS -->
+  <div class="tab-panel" id="tab-rooms">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+        <div><div class="stat-value" id="stat-total-rooms">0</div><div class="stat-label">Total Rooms</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="stat-value" id="stat-avail-rooms">0</div><div class="stat-label">Available</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div><div class="stat-value" id="stat-occupied-rooms">0</div><div class="stat-label">Occupied</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div><div class="stat-value" id="stat-maint-rooms">0</div><div class="stat-label">Maintenance</div></div>
+      </div>
+    </div>
+    <div class="rooms-visual-section">
+      <div class="data-card rooms-status-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Room Status Today
+          </span>
+          <div class="rooms-card-actions">
+            <select class="rooms-location-filter" id="roomsLocationFilter" aria-label="Filter rooms by location">
+              <option value="All">All Rooms</option>
+            </select>
+            <span class="rooms-card-meta" id="roomsGridTotal">0 rooms</span>
+          </div>
+        </div>
+        <div class="room-grid-container">
+          <div class="room-grid" id="room-grid-manage">
+            <div class="room-grid-empty">Loading room status...</div>
+          </div>
+          <div class="room-grid-legend">
+            <div class="legend-row">
+              <div class="legend-item">
+                <div class="legend-color occupied"></div>
+                <span>Occupied</span>
+                <strong id="roomsGridOccupied">0</strong>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color available"></div>
+                <span>Available</span>
+                <strong id="roomsGridAvailable">0</strong>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color maintenance"></div>
+                <span>Maintenance</span>
+                <strong id="roomsGridMaintenance">0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-card chart-card chart-card-donut rooms-chart-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 110 20 10 10 0 010-20"/></svg>
+            Room Overview
+          </span>
+        </div>
+        <div class="chart-wrap donut-center-container rooms-donut-wrap">
+          <canvas id="roomsStatusChart"></canvas>
+          <div class="donut-center-text">
+            <div class="donut-percentage" id="roomsStatusPercentage">0%</div>
+            <div class="donut-subtext">Occupied</div>
+          </div>
+        </div>
+        <div class="rooms-chart-legend">
+          <div class="legend-item">
+            <span class="legend-dot occupied"></span>
+            <span>Occupied</span>
+            <strong id="roomsChartOccupied">0</strong>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot available"></span>
+            <span>Available</span>
+            <strong id="roomsChartAvailable">0</strong>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot maintenance"></span>
+            <span>Maintenance</span>
+            <strong id="roomsChartMaintenance">0</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="data-card rooms-directory-card">
+      <div class="data-card-header">
+        <span class="data-card-title"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Room Directory</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" type="text" id="roomSearch" placeholder="Search rooms…"/>
+          </div>
+          <button class="btn btn-primary" id="addRoomBtn">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Room
+          </button>
+          <button class="btn btn-primary" id="addLocationBtn" style="background-color: var(--blue-600);">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Location
+          </button>
+          <button class="btn btn-secondary" id="manageLocationsBtn">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>Manage Locations
+          </button>
+          <button class="btn btn-secondary" data-open-report="rooms">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Generate Reports
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Code</th><th>Room Name</th><th>Type</th><th>Capacity</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="roomsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: SCHOOL SCHEDULES -->
+  <div class="tab-panel" id="tab-schedules">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">School Schedules</h2>
+        <p class="section-subtitle">Internal reference for regular class schedules</p>
+      </div>
+    </div>
+
+    <div class="data-card">
+      <div class="schedule-toolbar">
+        <div class="schedule-toolbar-left">
+          <span class="schedule-filter-label">Year &amp; Section</span>
+          <button class="manage-icon-btn" id="manageSectionsBtn" type="button" title="Manage sections" aria-label="Manage sections">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1 .6 1.65 1.65 0 00-.4 1v.17a2 2 0 01-4 0V21a1.65 1.65 0 00-.4-1 1.65 1.65 0 00-1-.6 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-.6-1 1.65 1.65 0 00-1-.4H2.83a2 2 0 010-4H3a1.65 1.65 0 001-.4 1.65 1.65 0 00.6-1 1.65 1.65 0 00-.33-1.82l-.06-.06A2 2 0 017.04 3.5l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-.6 1.65 1.65 0 00.4-1V2.83a2 2 0 014 0V3a1.65 1.65 0 00.4 1 1.65 1.65 0 001 .6 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.24.36.37.78.37 1.22s-.13.86-.37 1.22z"/></svg>
+          </button>
+          <select class="modal-form-select" id="scheduleSectionFilter" style="min-width:190px">
+            <option value="">All Sections</option>
+            <option value="BSIT-3B">BSIT-3B</option>
+            <option value="BSIT-4A">BSIT-4A</option>
+          </select>
+          <div class="schedule-filter-group">
+            <div class="schedule-filter-field">
+              <label for="scheduleDateFilter">Date</label>
+              <input type="date" id="scheduleDateFilter"/>
+            </div>
+            <div class="schedule-filter-field">
+              <label for="scheduleStartFilter">Start</label>
+              <input type="time" id="scheduleStartFilter"/>
+            </div>
+            <div class="schedule-filter-field">
+              <label for="scheduleEndFilter">End</label>
+              <input type="time" id="scheduleEndFilter"/>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="clearScheduleSlotFilter" type="button">Clear</button>
+          </div>
+          <span class="schedule-consolidated-note" id="scheduleConsolidatedNote">Consolidated View</span>
+        </div>
+        <button class="btn btn-primary" id="addScheduleBtn">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Schedule
+        </button>
+      </div>
+      <div class="schedule-calendar-wrap">
+        <div class="schedule-calendar" id="schoolScheduleCalendar">
+          <div class="schedule-empty">Loading schedules...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: EQUIPMENT -->
+  <div class="tab-panel" id="tab-equipment">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon sky"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <div><div class="stat-value" id="stat-total-equip">0</div><div class="stat-label">Total Equipment</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="stat-value" id="stat-avail-equip">0</div><div class="stat-label">Available</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div><div class="stat-value" id="stat-inuse-equip">0</div><div class="stat-label">In Use</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+        <div><div class="stat-value" id="stat-damaged-equip">0</div><div class="stat-label">Damaged</div></div>
+      </div>
+    </div>
+    <div class="data-card">
+      <div class="data-card-header">
+        <span class="data-card-title"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>Equipment Inventory</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" type="text" id="equipSearch" placeholder="Search equipment…"/>
+          </div>
+          <button class="btn btn-primary" id="addEquipBtn">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Equipment
+          </button>
+          <button class="btn btn-secondary" data-open-report="equipment">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Generate Reports
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Code</th><th>Name</th><th>QR Code</th><th>Status</th><th>Health Status</th><th>Asset Lifecycle</th><th>Assigned Room</th><th>Purchased</th><th>Actions</th></tr></thead>
+          <tbody id="equipTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <section class="data-card" style="margin-top:24px" aria-labelledby="disposalQueueHeading">
+      <div class="data-card-header"><span class="data-card-title" id="disposalQueueHeading">Disposal Requests ? Admin Review</span><button class="btn btn-secondary btn-sm" id="refreshDisposalBtn" type="button">Refresh</button></div>
+      <p id="disposalFeedback" role="status" hidden style="padding:16px 24px"></p>
+      <div class="table-wrap" style="max-height:320px;overflow:auto"><table><thead><tr><th>Equipment</th><th>Requested</th><th>Reason</th><th>Assessed Cost</th><th>Penalties</th><th>Admin Decision</th></tr></thead><tbody id="disposalRequestBody"></tbody></table></div>
+    </section>
+    <section class="data-card" style="margin-top:24px" aria-labelledby="disposalReportsHeading">
+      <div class="data-card-header"><span class="data-card-title" id="disposalReportsHeading">Disposal Reports ? Approved Equipment</span><button class="btn btn-secondary btn-sm" data-open-report="disposal" type="button">Download Disposal Report</button></div>
+      <div class="table-wrap" style="max-height:320px;overflow:auto"><table><thead><tr><th>Equipment</th><th>Disposal Date</th><th>Reason</th><th>Assessed Cost</th><th>Penalties</th><th>Borrower</th><th>Admin Note</th></tr></thead><tbody id="disposalReportBody"></tbody></table></div>
+    </section>
+  </div>
+
+  <!-- TAB: RESERVATIONS -->
+  <div class="tab-panel" id="tab-reservations">
+    <!-- Section header -->
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Approve Reservations</h2>
+        <p class="section-subtitle">Manage and approve room reservation requests</p>
+      </div>
+    </div>
+
+    <!-- Top Statistics Cards (4 cards) -->
+    <div class="stats-row-4">
+      <div class="stat-card-modern">
+        <div class="stat-icon-modern blue"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div class="stat-content">
+          <div class="stat-value" id="stat-total-res">0</div>
+          <div class="stat-label">Total Requests</div>
+        </div>
+      </div>
+      <div class="stat-card-modern">
+        <div class="stat-icon-modern yellow"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="stat-content">
+          <div class="stat-value" id="stat-pending-res">0</div>
+          <div class="stat-label">Pending</div>
+        </div>
+      </div>
+      <div class="stat-card-modern">
+        <div class="stat-icon-modern green"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="stat-content">
+          <div class="stat-value" id="stat-approved-res">0</div>
+          <div class="stat-label">Approved</div>
+        </div>
+      </div>
+      <div class="stat-card-modern">
+        <div class="stat-icon-modern red"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+        <div class="stat-content">
+          <div class="stat-value" id="stat-rejected-res">0</div>
+          <div class="stat-label">Rejected</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Section: Room Grid (Left) + Weekly Summary (Right) -->
+    <div class="res-middle-section">
+      <!-- Left: Room Status Grid (70%) -->
+      <div class="res-room-grid-card">
+        <div class="data-card-header">
+          <span class="data-card-title"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Room Status Today</span>
+          <div class="rooms-card-actions">
+            <select class="rooms-location-filter" id="approveRoomsLocationFilter" aria-label="Filter reservation room status by location">
+              <option value="All">All Locations</option>
+            </select>
+          </div>
+        </div>
+        <div class="room-grid-container">
+          <div class="approve-room-grid-scroll">
+            <div class="room-grid" id="room-grid-approve">
+              <!-- Rooms will be dynamically populated -->
+            </div>
+          </div>
+          <div class="room-grid-legend">
+            <div class="legend-row">
+              <div class="legend-item">
+                <div class="legend-color occupied"></div>
+                <span>Occupied</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color available"></div>
+                <span>Available</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color maintenance"></div>
+                <span>Maintenance</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Weekly Summary (30%) -->
+      <div class="res-weekly-summary-card">
+        <div class="data-card-header" style="margin-bottom: 20px;">
+          <span class="data-card-title"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>This Week</span>
+        </div>
+        <div class="weekly-summary-grid">
+          <div class="weekly-mini-card">
+            <div class="mini-card-icon blue"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+            <div class="mini-card-content">
+              <div class="mini-card-value" id="weekly-booked">0</div>
+              <div class="mini-card-label">Reserved Rooms</div>
+            </div>
+          </div>
+          <div class="weekly-mini-card">
+            <div class="mini-card-icon yellow"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div class="mini-card-content">
+              <div class="mini-card-value" id="weekly-pending">0</div>
+              <div class="mini-card-label">Pending</div>
+            </div>
+          </div>
+          <div class="weekly-mini-card">
+            <div class="mini-card-icon red"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+            <div class="mini-card-content">
+              <div class="mini-card-value" id="weekly-rejected">0</div>
+              <div class="mini-card-label">Rejected</div>
+            </div>
+          </div>
+          <div class="weekly-mini-card">
+            <div class="mini-card-icon sky"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><text x="50%" y="60%" text-anchor="middle" dominant-baseline="middle" font-size="10">TOTAL</text></svg></div>
+            <div class="mini-card-content">
+              <div class="mini-card-value" id="weekly-total">0</div>
+              <div class="mini-card-label">Total Rooms</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section: Reservation Requests Table -->
+    <div class="data-card res-table-card" id="reservationRequestsCard">
+      <div class="data-card-header">
+        <span class="data-card-title"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg>Reservation Requests</span>
+      </div>
+      
+      <!-- Filters Section -->
+      <div class="res-filters">
+        <div class="filter-group">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" type="text" id="resSearch" placeholder="Search by requester, room, or code…"/>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="vip-queue-note">VIP requests appear first</span>
+          <button class="filter-btn" data-filter="all" data-active="true">All</button>
+          <button class="filter-btn" data-filter="Pending">Pending</button>
+          <button class="filter-btn" data-filter="Waiting List">Waiting List</button>
+          <button class="filter-btn" data-filter="Approved">Approved</button>
+          <button class="filter-btn" data-filter="Rejected">Rejected</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="res-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Faculty</th>
+              <th>Room</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Purpose</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="resTableBody"></tbody>
+        </table>
+        <div class="table-empty" id="resTableEmpty" style="display: none;">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22v-8h6v8"/></svg>
+          <p>No reservations found</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: PROFILE -->
+  <div class="tab-panel" id="tab-profile">
+    <div class="profile-cards-container">
+
+      <!-- Profile Information Card -->
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <span>
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Profile Information
+          </span>
+        </div>
+        <div class="profile-card-content">
+          <div class="profile-avatar-section">
+            <div class="profile-avatar" id="profileAvatarDisplay">AD</div>
+            <div class="profile-avatar-info">Member since <span id="profileCreated">—</span></div>
+          </div>
+          <div class="modal-form-group">
+            <label class="modal-form-label">Full Name</label>
+            <input class="modal-form-input" type="text" id="profileFullName" placeholder="Your full name"/>
+          </div>
+          <div class="modal-form-group">
+            <label class="modal-form-label">Email Address</label>
+            <input class="modal-form-input" type="email" id="profileEmail" placeholder="your@email.com"/>
+          </div>
+          <div class="modal-form-row">
+            <div class="modal-form-group">
+              <label class="modal-form-label">Username</label>
+              <input class="modal-form-input" type="text" id="profileUsername" disabled style="opacity:.6;cursor:not-allowed"/>
+            </div>
+            <div class="modal-form-group">
+              <label class="modal-form-label">Role</label>
+              <input class="modal-form-input" type="text" id="profileRole" disabled style="opacity:.6;cursor:not-allowed;text-transform:capitalize"/>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="saveProfileBtn">
+            <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+            Save Profile
+          </button>
+        </div>
+      </div>
+
+      <!-- Change Password (Center Column) -->
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <span>
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Change Password
+          </span>
+        </div>
+        <div class="profile-card-content profile-form-content">
+          <form id="passwordForm">
+            <div class="modal-form-group">
+              <label class="modal-form-label">Current Password</label>
+              <input class="modal-form-input" type="password" id="currentPassword" placeholder="Enter current password"/>
+            </div>
+            <div class="modal-form-group">
+              <label class="modal-form-label">New Password</label>
+              <input class="modal-form-input" type="password" id="newPassword" placeholder="Min. 6 characters"/>
+            </div>
+            <div class="modal-form-group">
+              <label class="modal-form-label">Confirm New Password</label>
+              <input class="modal-form-input" type="password" id="confirmNewPassword" placeholder="Repeat new password"/>
+            </div>
+            <button type="button" class="btn btn-primary" id="savePasswordBtn">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Update Password
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Recent Activity (Right Column) -->
+      <div class="profile-card">
+        <div class="profile-card-header">
+          <span>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Recent Activity
+          </span>
+          <a href="#" class="btn-text" id="viewAllActivityBtn" style="display:none;margin-left:auto;margin-right:-8px">View All</a>
+        </div>
+        <div class="profile-card-content">
+          <ul class="activity-list" id="profileActivityList" style="list-style:none;padding:0;margin:0">
+            <li style="text-align:center;color:var(--slate-400);padding:40px 0">Loading activities...</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  </main>
+
+
+<!-- MODALS -->
+
+<!-- Add / Edit User -->
+<div class="modal-overlay hidden" id="userModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="userModalTitle">Add New User</h3>
+      <button class="modal-close" data-close="userModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="userForm" autocomplete="off">
+        <input type="hidden" id="userId" name="id"/>
+        <div class="modal-form-row">
+          <div class="modal-form-group">
+            <label class="modal-form-label">Full Name *</label>
+            <input class="modal-form-input" type="text" id="uFullName" name="full_name" placeholder="e.g. Prof. Maria Santos" required/>
+          </div>
+          <div class="modal-form-group">
+            <label class="modal-form-label">Role *</label>
+            <select class="modal-form-select" id="uRole" name="role" required>
+              <option value="faculty">Faculty</option>
+            <option value="vip">VIP</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Username *</label>
+          <input class="modal-form-input" type="text" id="uUsername" name="username" placeholder="e.g. prof.santos" autocomplete="new-password" required/>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Email</label>
+          <input class="modal-form-input" type="email" id="uEmail" name="email" placeholder="user@gcst.edu.ph"/>
+        </div>
+        <div class="modal-form-group" id="userPasswordGroup">
+          <label class="modal-form-label">Password * <span style="font-size:.7rem;font-weight:400;color:var(--slate-400)">(min. 6 characters)</span></label>
+          <input class="modal-form-input" type="password" id="uPassword" name="password" placeholder="Set initial password" autocomplete="new-password"/>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="userModal">Cancel</button>
+      <button class="btn btn-primary" id="saveUserBtn">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Save User
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset Password -->
+<div class="modal-overlay hidden" id="resetPwModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h3 class="modal-title">Reset Password</h3>
+      <button class="modal-close" data-close="resetPwModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="resetPwUserId"/>
+      <p style="font-size:.85rem;color:var(--slate-600);margin-bottom:20px">
+        Resetting password for: <strong id="resetPwUserName"></strong>
+      </p>
+      <form id="resetPwForm" autocomplete="off">
+        <div class="modal-form-group">
+          <label class="modal-form-label">New Password *</label>
+          <input class="modal-form-input" type="password" id="newPwInput" placeholder="Min. 6 characters" autocomplete="new-password"/>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Confirm Password *</label>
+          <input class="modal-form-input" type="password" id="confirmPwInput" placeholder="Repeat new password"/>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="resetPwModal">Cancel</button>
+      <button class="btn btn-primary" id="saveResetPwBtn">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Reset Password
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Room -->
+<div class="modal-overlay hidden" id="roomModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="roomModalTitle">Add New Room</h3>
+      <button class="modal-close" data-close="roomModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="roomForm" autocomplete="off">
+      <input type="hidden" id="roomId"/>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label class="modal-form-label">Room Code</label>
+          <input class="modal-form-input" type="text" id="rCode" placeholder="Auto (e.g. RM-107)"/>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Room Name *</label>
+          <input class="modal-form-input" type="text" id="rName" placeholder="e.g. Science Laboratory" required/>
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label class="modal-form-label">Type *</label>
+          <select class="modal-form-select" id="rType">
+            <option>Classroom</option><option>Laboratory</option>
+            <option>Conference Room</option><option>Lecture Hall</option><option>Office</option><option>Comfort Room</option><option>Canteen</option>
+          </select>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Capacity *</label>
+          <input class="modal-form-input" type="number" id="rCapacity" placeholder="e.g. 40" min="1" required/>
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label class="modal-form-label">Location</label>
+          <select class="modal-form-select" id="locationDropdown" name="location">
+            <option value="">— Select or Add Location —</option>
+          </select>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Status</label>
+          <select class="modal-form-select" id="rStatus">
+            <option>Available</option><option>Occupied</option><option>Under Maintenance</option>
+          </select>
+        </div>
+      </div>
+      <p style="font-size:.8rem;color:var(--slate-600)">A QR code is generated when you save. Reprint the door label after changing the room code.</p>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="roomModal">Cancel</button>
+      <button class="btn btn-primary" id="saveRoomBtn">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Save &amp; Generate QR
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Location Modal -->
+<div class="modal-overlay hidden" id="locationModal">
+  <div class="modal" style="max-width: 400px;">
+    <div class="modal-header">
+      <h3 class="modal-title">Add New Location</h3>
+      <button class="modal-close" data-close="locationModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="locationForm" autocomplete="off">
+        <div class="modal-form-group">
+          <label class="modal-form-label">Location Name *</label>
+          <input class="modal-form-input" type="text" id="locName" placeholder="e.g. Building C, 3rd Floor" required/>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="locationModal">Cancel</button>
+      <button class="btn btn-primary" id="saveLocationBtn">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Save Location
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Manage Locations Modal -->
+<div class="modal-overlay hidden" id="manageLocationsModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <h3 class="modal-title">Manage Locations</h3>
+      <button class="modal-close" data-close="manageLocationsModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="manage-list" id="locationsManageList">
+        <div class="manage-row"><span class="manage-row-title">Loading locations...</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="manageLocationsModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manage Sections Modal -->
+<div class="modal-overlay hidden" id="manageSectionsModal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header">
+      <h3 class="modal-title">Manage Sections</h3>
+      <button class="modal-close" data-close="manageSectionsModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="section-editor-row">
+        <div class="modal-form-group">
+          <label class="modal-form-label">Section Name</label>
+          <input class="modal-form-input" type="text" id="sectionNameInput" placeholder="e.g. BSIT-3B"/>
+          <input type="hidden" id="sectionIdInput"/>
+        </div>
+        <button class="btn btn-primary" id="saveSectionBtn">
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/></svg>
+          <span id="saveSectionBtnText">Add Section</span>
+        </button>
+        <button class="btn btn-secondary" id="cancelSectionEditBtn" style="display:none">Cancel Edit</button>
+      </div>
+      <div class="manage-list" id="sectionsManageList">
+        <div class="manage-row"><span class="manage-row-title">Loading sections...</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="manageSectionsModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Schedule Modal -->
+<div class="modal-overlay hidden" id="scheduleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="scheduleModalTitle">Add Regular Class Schedule</h3>
+      <button class="modal-close" data-close="scheduleModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="scheduleForm" autocomplete="off">
+        <input type="hidden" id="scheduleId"/>
+        <div class="modal-form-row">
+          <div class="modal-form-group">
+            <label class="modal-form-label">Year &amp; Section *</label>
+            <select class="modal-form-select" id="scheduleYearSection" required>
+              <option value="">Select section</option>
+            </select>
+          </div>
+          <div class="modal-form-group">
+            <label class="modal-form-label">Subject Name *</label>
+            <input class="modal-form-input" type="text" id="scheduleSubject" placeholder="e.g. Systems Integration" required/>
+          </div>
+        </div>
+
+        <div class="modal-form-group">
+          <label class="modal-form-label">Day of the Week *</label>
+          <div class="schedule-days">
+            <label class="schedule-day-check"><input type="checkbox" name="scheduleDay" value="M"/> M</label>
+            <label class="schedule-day-check"><input type="checkbox" name="scheduleDay" value="T"/> T</label>
+            <label class="schedule-day-check"><input type="checkbox" name="scheduleDay" value="W"/> W</label>
+            <label class="schedule-day-check"><input type="checkbox" name="scheduleDay" value="Th"/> Th</label>
+            <label class="schedule-day-check"><input type="checkbox" name="scheduleDay" value="F"/> F</label>
+            <label class="schedule-day-check"><input type="checkbox" name="scheduleDay" value="S"/> S</label>
+          </div>
+        </div>
+
+        <div class="modal-form-row">
+          <div class="modal-form-group">
+            <label class="modal-form-label">Start Time *</label>
+            <input class="modal-form-input" type="time" id="scheduleStartTime" required/>
+          </div>
+          <div class="modal-form-group">
+            <label class="modal-form-label">End Time *</label>
+            <input class="modal-form-input" type="time" id="scheduleEndTime" required/>
+          </div>
+        </div>
+
+        <div class="modal-form-group">
+          <label class="modal-form-label">Room Selection *</label>
+          <select class="modal-form-select" id="scheduleRoomSelect" required>
+            <option value="">Loading rooms...</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer schedule-modal-footer">
+      <button class="btn btn-danger" id="deleteScheduleBtn" style="display:none">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
+        Delete Schedule
+      </button>
+      <div class="schedule-modal-actions">
+        <button class="btn btn-secondary" data-close="scheduleModal">Cancel</button>
+        <button class="btn btn-primary" id="saveScheduleBtn">
+          <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/></svg>
+          <span id="saveScheduleBtnText">Save Schedule</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Equipment -->
+<div class="modal-overlay hidden" id="equipModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="equipModalTitle">Add New Equipment</h3>
+      <button class="modal-close" data-close="equipModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="equipId"/>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label class="modal-form-label">Equipment Code</label>
+          <input class="modal-form-input" type="text" id="eCode" placeholder="Auto (e.g. EQ-007)"/>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Equipment Name *</label>
+          <input class="modal-form-input" type="text" id="eName" placeholder="e.g. Projector Epson" required/>
+        </div>
+      </div>
+      <div class="modal-form-group">
+        <label class="modal-form-label">Description</label>
+        <input class="modal-form-input" type="text" id="eDesc" placeholder="Optional short description"/>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label class="modal-form-label">Assign to Room / Location</label>
+          <select class="modal-form-select" id="equipRoomAssign">
+            <option value="">— Select Room —</option>
+          </select>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Status</label>
+          <select class="modal-form-select" id="eStatus">
+            <option>Available</option><option>In Use</option><option>Damaged</option><option>Under Repair</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label class="modal-form-label">Serial Number</label>
+          <input class="modal-form-input" type="text" id="eSerial" placeholder="e.g. SN-EPSON-001"/>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">Purchase Date</label>
+          <input class="modal-form-input" type="date" id="ePurchased"/>
+        </div>
+      </div>
+      <div style="background:var(--primary-pale);border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;font-size:.8rem;color:var(--slate-600)">
+        <strong style="color:var(--primary)">ℹ QR Code</strong> — A QR code image will be automatically generated and saved when you add new equipment.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="equipModal">Cancel</button>
+      <button class="btn btn-primary" id="saveEquipBtn">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/></svg>Save &amp; Generate QR
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Room QR Code Viewer -->
+<div class="modal-overlay hidden" id="roomQrModal" role="dialog" aria-modal="true" aria-labelledby="roomQrTitle">
+  <div class="modal" style="max-width:420px;text-align:center">
+    <div class="modal-header">
+      <h3 class="modal-title" id="roomQrTitle">Room QR Code</h3>
+      <button class="modal-close" data-close="roomQrModal" type="button" aria-label="Close room QR preview"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;align-items:center;gap:14px">
+      <img id="roomQrImage" alt="Room QR code" hidden style="width:240px;max-width:100%;height:auto;background:white;padding:12px;border:1px solid var(--slate-200);border-radius:8px"/>
+      <strong id="roomQrName" style="font-size:1rem;color:var(--navy)"></strong>
+      <code id="roomQrCode" style="font-size:1.1rem;font-weight:700;color:var(--primary)"></code>
+      <p id="roomQrStatus" role="status" aria-live="polite" style="font-size:.8rem;color:var(--slate-600)"></p>
+    </div>
+    <div class="modal-footer" style="justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-secondary" id="printRoomQrBtn" type="button" disabled>Print QR Code</button>
+      <button class="btn btn-primary" id="downloadRoomQrBtn" type="button" disabled>Download QR Code</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR Code Viewer -->
+<div class="modal-overlay hidden" id="qrModal">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div class="modal-header">
+      <h3 class="modal-title">Equipment QR Code</h3>
+      <button class="modal-close" data-close="qrModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <img id="qrImageDisplay" src="" alt="QR Code"
+           style="width:200px;height:200px;border-radius:12px;border:1px solid var(--slate-200);display:none"/>
+      <div>
+        <div id="qrEquipLabel" style="font-size:.9rem;font-weight:700;color:var(--navy)"></div>
+        <div id="qrEquipRoom"  style="font-size:.78rem;color:var(--slate-400);margin-top:3px"></div>
+      </div>
+      <code id="qrString" style="font-size:.75rem;background:var(--slate-100);padding:4px 12px;border-radius:6px;color:var(--slate-600)"></code>
+      <p style="font-size:.72rem;color:var(--slate-400)">Scan to view equipment details</p>
+    </div>
+    <div class="modal-footer" style="justify-content:center;padding-bottom:24px">
+      <button class="btn btn-primary" id="downloadQrBtn">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download QR
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Reports Modal -->
+<div class="modal-overlay hidden" id="reportExportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Generate Reports</h3>
+      <button class="modal-close" data-close="reportExportModal"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="reportExportForm" autocomplete="off">
+        <div class="modal-form-group">
+          <label class="modal-form-label">Report Type</label>
+          <select class="modal-form-select" id="exportReportType" name="type" required>
+            <option value="room_utilization">Room Utilization</option>
+            <option value="room_schedule">Room Schedule Report</option>
+            <option value="maintenance_predictor">Maintenance Predictor Report</option>
+            <option value="inventory">Inventory Report</option>
+            <option value="disposal">Disposal Reports</option>
+            <option value="faculty_reservation_logs">Faculty Reservation Logs</option>
+          </select>
+        </div>
+        <div class="modal-form-row">
+          <div class="modal-form-group">
+            <label class="modal-form-label">From</label>
+            <input class="modal-form-input" type="date" id="exportDateFrom" name="from"/>
+          </div>
+          <div class="modal-form-group">
+            <label class="modal-form-label">To</label>
+            <input class="modal-form-input" type="date" id="exportDateTo" name="to"/>
+          </div>
+        </div>
+        <div class="modal-form-group">
+          <label class="modal-form-label">File Format</label>
+          <select class="modal-form-select" id="exportFormat" name="format" required>
+            <option value="pdf">PDF</option>
+            <option value="excel">Excel (.xlsx)</option>
+            <option value="csv">CSV</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="reportExportModal">Cancel</button>
+      <button class="btn btn-primary" id="downloadReportBtn">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Report
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete -->
+<div class="modal-overlay hidden" id="deleteModal">
+  <div class="modal logout-modal">
+    <div class="modal-body">
+      <div class="logout-icon">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+      </div>
+      <h3>Confirm Delete</h3>
+      <p id="deleteModalMsg">Are you sure? This cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="deleteModal">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Logout Confirm -->
+<div class="modal-overlay hidden" id="logoutModal">
+  <div class="modal logout-modal">
+    <div class="modal-body">
+      <div class="logout-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </div>
+      <h3>Sign Out</h3>
+      <p>Are you sure you want to sign out?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="logoutModal">Stay</button>
+      <button class="btn btn-danger" id="confirmLogoutBtn">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>window.Chart || document.write('<script src="/gcst-system/backend/libs/chartjs/chart.umd.min.js"><\/script>');</script>
+<script src="../backend/js/disposal.js?v=1"></script>
+<script src="../backend/js/room-qr.js?v=1"></script>
+<script src="/gcst-system/backend/js/script.js?v=28"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const locModal = document.getElementById('locationModal');
+    const btnAddLoc = document.getElementById('addLocationBtn');
+    const btnManageLoc = document.getElementById('manageLocationsBtn');
+    const btnSaveLoc = document.getElementById('saveLocationBtn');
+    const locationDropdown = document.getElementById('locationDropdown');
+    const deleteLocationApi = '/gcst-system/backend/modules/delete_location.php';
+    const manageSectionsApi = '/gcst-system/backend/modules/manage_sections.php';
+    let managedSections = [];
+
+    function fetchLocations() {
+        if (!locationDropdown) {
+            console.warn('Location dropdown not found');
+            return;
+        }
+        
+        fetch('/gcst-system/backend/modules/rooms.php?action=get_locations')
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                console.log('Locations fetched:', data);
+                // The API returns locations at the top level
+                const locations = data.locations || (data.data && data.data.locations) || [];
+                if (locations && locations.length > 0) {
+                    const currentVal = locationDropdown.value;
+                    locationDropdown.innerHTML = '<option value="">— Select Location —</option>';
+                    locations.forEach(loc => {
+                        const opt = document.createElement('option');
+                        opt.value = loc.location_name;
+                        opt.textContent = loc.location_name;
+                        locationDropdown.appendChild(opt);
+                    });
+                    if (currentVal) {
+                        locationDropdown.value = currentVal;
+                    }
+                    console.log('Dropdown populated with', locations.length, 'locations');
+                } else {
+                    console.warn('No locations returned from API:', data);
+                    locationDropdown.innerHTML = '<option value="">— No Locations Available —</option>';
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching locations:', err);
+                locationDropdown.innerHTML = '<option value="">— Error Loading Locations —</option>';
+            });
+    }
+
+    // Fetch on page load
+    fetchLocations();
+    
+    // Also refetch when the modal opens (to catch dynamically added locations)
+    if (document.getElementById('roomModal')) {
+        const roomModal = document.getElementById('roomModal');
+        const originalObserver = new MutationObserver(() => {
+            if (!roomModal.classList.contains('hidden') && locationDropdown) {
+                fetchLocations();
+            }
+        });
+        originalObserver.observe(roomModal, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    if (btnAddLoc) {
+        btnAddLoc.addEventListener('click', () => {
+            document.getElementById('locName').value = '';
+            locModal.classList.remove('hidden');
+        });
+    }
+
+    if (btnSaveLoc) {
+        btnSaveLoc.addEventListener('click', () => {
+            const name = document.getElementById('locName').value.trim();
+            if (!name) {
+                alert('Location Name is required.');
+                return;
+            }
+            fetch('/gcst-system/backend/modules/rooms.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ action: 'add_location', location_name: name })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    locModal.classList.add('hidden');
+                    fetchLocations();
+                    if (typeof window.refreshRoomLocations === 'function') {
+                        window.refreshRoomLocations();
+                    }
+                    
+                    // Show success toast using global function if available
+                    if (typeof showToast === 'function') {
+                        showToast(data.message || 'Location added successfully.', 'success');
+                    } else {
+                        alert(data.message || 'Location added successfully.');
+                    }
+                } else {
+                    if (typeof showToast === 'function') {
+                        showToast(data.message || 'Error saving location.', 'error');
+                    } else {
+                        alert(data.message || 'Error saving location.');
+                    }
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error saving location.');
+            });
+        });
+    }
+
+    async function loadManageLocations() {
+        const list = document.getElementById('locationsManageList');
+        if (!list) return;
+        list.innerHTML = '<div class="manage-row"><span class="manage-row-title">Loading locations...</span></div>';
+
+        try {
+            const res = await fetch('/gcst-system/backend/modules/rooms.php?action=get_locations', { credentials: 'include' });
+            const data = await res.json();
+            const locations = data.locations || [];
+
+            if (!locations.length) {
+                list.innerHTML = '<div class="manage-row"><span class="manage-row-title">No locations found</span></div>';
+                return;
+            }
+
+            list.innerHTML = locations.map(loc => `
+                <div class="manage-row" data-location-id="${loc.id}" data-location-name="${scheduleEscape(loc.location_name)}">
+                    <div>
+                        <div class="manage-row-title">${scheduleEscape(loc.location_name)}</div>
+                        <div class="manage-row-meta">Room location</div>
+                    </div>
+                    <div class="manage-row-actions">
+                        <button class="btn btn-danger btn-sm delete-location-btn" type="button">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (err) {
+            console.error(err);
+            list.innerHTML = '<div class="manage-row"><span class="manage-row-title">Unable to load locations</span></div>';
+        }
+    }
+
+    btnManageLoc?.addEventListener('click', () => {
+        document.getElementById('manageLocationsModal')?.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        loadManageLocations();
+    });
+
+    document.getElementById('locationsManageList')?.addEventListener('click', async event => {
+        const btn = event.target.closest('.delete-location-btn');
+        if (!btn) return;
+        const row = btn.closest('.manage-row');
+        const id = row?.dataset.locationId || '';
+        const locationName = row?.dataset.locationName || 'this location';
+        if (!confirm(`Delete "${locationName}"?`)) return;
+
+        const response = await fetch(deleteLocationApi, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ id })
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert(data.message || 'Location deleted.');
+            fetchLocations();
+            if (typeof window.refreshRoomLocations === 'function') {
+                window.refreshRoomLocations();
+            }
+            loadManageLocations();
+        } else {
+            alert(data.message || 'Unable to delete location.');
+        }
+    });
+
+    // Bind close button manually just in case script.js misses dynamically added modals
+    const locCloseBtns = locModal.querySelectorAll('[data-close="locationModal"]');
+    locCloseBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            locModal.classList.add('hidden');
+        });
+    });
+
+    function openReservationRequestsFromNotification() {
+        const reservationsTab = document.querySelector('.dash-tab[data-tab="reservations"]');
+        const reservationsPanel = document.getElementById('tab-reservations');
+        const notifDropdown = document.getElementById('notifDropdown');
+
+        if (notifDropdown) {
+            notifDropdown.classList.add('hidden');
+        }
+
+        if (reservationsTab) {
+            reservationsTab.click();
+        }
+
+        // Fallback in case the global tab handler is not ready when the notification is clicked.
+        document.querySelectorAll('.dash-tab').forEach(tab => tab.classList.remove('active'));
+        reservationsTab?.classList.add('active');
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.toggle('active', panel === reservationsPanel);
+        });
+
+        setTimeout(() => {
+            const target = document.getElementById('reservationRequestsCard') || document.getElementById('resTableBody');
+            target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 180);
+    }
+
+    document.addEventListener('click', event => {
+        const notificationItem = event.target.closest('.notif-item');
+        if (!notificationItem) return;
+
+        const title = notificationItem.querySelector('.notif-item-title')?.textContent.trim().toLowerCase() || '';
+        const body = notificationItem.querySelector('.notif-item-body')?.textContent.trim().toLowerCase() || '';
+        const notificationText = `${title} ${body}`;
+
+        if (title.includes('new reservation request') || (notificationText.includes('reservation') && notificationText.includes('request'))) {
+            openReservationRequestsFromNotification();
+        }
+    });
+
+    const scheduleApi = '/gcst-system/backend/modules/schedules.php';
+    const updateScheduleApi = '/gcst-system/backend/modules/update_schedule.php';
+    const deleteScheduleApi = '/gcst-system/backend/modules/delete_schedule.php';
+    const scheduleRecords = new Map();
+    const scheduleDays = [
+        { key: 'M', label: 'Monday' },
+        { key: 'T', label: 'Tuesday' },
+        { key: 'W', label: 'Wednesday' },
+        { key: 'Th', label: 'Thursday' },
+        { key: 'F', label: 'Friday' },
+        { key: 'S', label: 'Saturday' },
+    ];
+    const scheduleSlots = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+
+    function scheduleEscape(value) {
+        const div = document.createElement('div');
+        div.textContent = value || '';
+        return div.innerHTML;
+    }
+
+    function scheduleTime(value) {
+        if (!value) return '';
+        const [hourRaw, minute = '00'] = value.split(':');
+        const hour = parseInt(hourRaw, 10);
+        return `${hour > 12 ? hour - 12 : hour || 12}:${minute} ${hour >= 12 ? 'PM' : 'AM'}`;
+    }
+
+    function scheduleSlotKey(time) {
+        const [hour = '07'] = (time || '07:00').split(':');
+        return `${String(Math.max(7, Math.min(19, parseInt(hour, 10) || 7))).padStart(2, '0')}:00`;
+    }
+
+    function scheduleDayFromDate(dateValue) {
+        if (!dateValue) return '';
+        const dayIndex = new Date(`${dateValue}T00:00:00`).getDay();
+        return ['', 'M', 'T', 'W', 'Th', 'F', 'S'][dayIndex] || '';
+    }
+
+    function getScheduleSlotFilter() {
+        const date = document.getElementById('scheduleDateFilter')?.value || '';
+        const start = document.getElementById('scheduleStartFilter')?.value || '';
+        const end = document.getElementById('scheduleEndFilter')?.value || '';
+        const day = scheduleDayFromDate(date);
+        return {
+            date,
+            day,
+            start,
+            end,
+            active: Boolean(date && day && start && end),
+        };
+    }
+
+    function showScheduleToast(message, type = 'success') {
+        if (typeof toast === 'function') toast(message, type);
+        else alert(message);
+    }
+
+    function renderSectionsManageList() {
+        const list = document.getElementById('sectionsManageList');
+        if (!list) return;
+
+        if (!managedSections.length) {
+            list.innerHTML = '<div class="manage-row"><span class="manage-row-title">No sections found</span></div>';
+            return;
+        }
+
+        list.innerHTML = managedSections.map(section => `
+            <div class="manage-row" data-section-id="${section.id}" data-section-name="${scheduleEscape(section.section_name)}">
+                <div>
+                    <div class="manage-row-title">${scheduleEscape(section.section_name)}</div>
+                    <div class="manage-row-meta">${Number(section.schedule_count || 0)} linked schedule${Number(section.schedule_count || 0) === 1 ? '' : 's'}</div>
+                </div>
+                <div class="manage-row-actions">
+                    <button class="btn btn-secondary btn-sm edit-section-btn" type="button">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn btn-danger btn-sm delete-section-btn" type="button">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function resetSectionForm() {
+        document.getElementById('sectionIdInput').value = '';
+        document.getElementById('sectionNameInput').value = '';
+        document.getElementById('saveSectionBtnText').textContent = 'Add Section';
+        document.getElementById('cancelSectionEditBtn').style.display = 'none';
+    }
+
+    async function loadManagedSections() {
+        const response = await fetch(manageSectionsApi, { credentials: 'include' });
+        const data = await response.json();
+        if (!data.success) {
+            showScheduleToast(data.message || 'Unable to load sections.', 'error');
+            return [];
+        }
+        managedSections = data.sections || [];
+        renderSectionsManageList();
+        return managedSections;
+    }
+
+    async function refreshScheduleSections(schedules = []) {
+        const filter = document.getElementById('scheduleSectionFilter');
+        const formSelect = document.getElementById('scheduleYearSection');
+        if (!filter && !formSelect) return;
+
+        if (!managedSections.length) {
+            await loadManagedSections();
+        }
+
+        const sections = Array.from(new Set([
+            ...managedSections.map(item => item.section_name).filter(Boolean),
+            ...schedules.map(item => item.year_section).filter(Boolean)
+        ])).sort();
+        const current = filter?.value || '';
+        const currentForm = formSelect?.value || '';
+
+        if (filter) {
+            filter.innerHTML = '<option value="">All Sections</option>' +
+                sections.map(section => `<option value="${scheduleEscape(section)}">${scheduleEscape(section)}</option>`).join('');
+            filter.value = sections.includes(current) ? current : '';
+        }
+        if (formSelect) {
+            formSelect.innerHTML = '<option value="">Select section</option>' +
+                sections.map(section => `<option value="${scheduleEscape(section)}">${scheduleEscape(section)}</option>`).join('');
+            formSelect.value = sections.includes(currentForm) ? currentForm : '';
+        }
+    }
+
+    function renderSchoolScheduleCalendar(schedules = [], slotFilter = getScheduleSlotFilter()) {
+        const calendar = document.getElementById('schoolScheduleCalendar');
+        if (!calendar) return;
+
+        scheduleRecords.clear();
+        const grouped = new Map();
+        schedules.forEach(item => {
+            scheduleRecords.set(String(item.id), item);
+            const key = `${scheduleSlotKey(item.start_time)}-${item.day_of_week}`;
+            if (!grouped.has(key)) grouped.set(key, []);
+            grouped.get(key).push(item);
+        });
+
+        let html = '<div class="schedule-time-head">Time</div>' +
+            scheduleDays.map(day => `<div class="schedule-day-head">${day.label}</div>`).join('');
+
+        scheduleSlots.forEach(slot => {
+            html += `<div class="schedule-cell schedule-time-cell">${scheduleTime(slot)}</div>`;
+            scheduleDays.forEach(day => {
+                const items = grouped.get(`${slot}-${day.key}`) || [];
+                html += `<div class="schedule-cell">`;
+                html += items.map(item => `
+                    <button type="button" class="schedule-class-block${slotFilter.active ? ' warning' : ''}" data-schedule-id="${scheduleEscape(item.id)}">
+                        <strong>${scheduleEscape(item.subject_name)}</strong>
+                        <span>${scheduleTime(item.start_time)} - ${scheduleTime(item.end_time)}</span>
+                        <small>${scheduleEscape(item.room_code)}${item.year_section ? ` &middot; ${scheduleEscape(item.year_section)}` : ''}</small>
+                    </button>
+                `).join('');
+                html += '</div>';
+            });
+        });
+
+        if (!schedules.length) {
+            html += '<div class="schedule-empty">No regular class schedules found.</div>';
+        }
+        calendar.innerHTML = html;
+    }
+
+    function setScheduleModalMode(mode, schedule = null) {
+        const isEdit = mode === 'edit';
+        document.getElementById('scheduleModalTitle').textContent = isEdit ? 'Edit Regular Class Schedule' : 'Add Regular Class Schedule';
+        document.getElementById('saveScheduleBtnText').textContent = isEdit ? 'Save Changes' : 'Save Schedule';
+        document.getElementById('deleteScheduleBtn').style.display = isEdit ? 'inline-flex' : 'none';
+        document.getElementById('scheduleId').value = isEdit && schedule ? schedule.id : '';
+
+        if (!isEdit) {
+            document.getElementById('scheduleForm')?.reset();
+            return;
+        }
+
+        document.getElementById('scheduleYearSection').value = schedule.year_section || '';
+        document.getElementById('scheduleSubject').value = schedule.subject_name || '';
+        document.getElementById('scheduleStartTime').value = (schedule.start_time || '').slice(0, 5);
+        document.getElementById('scheduleEndTime').value = (schedule.end_time || '').slice(0, 5);
+        document.querySelectorAll('input[name="scheduleDay"]').forEach(input => {
+            input.checked = input.value === schedule.day_of_week;
+        });
+    }
+
+    async function openScheduleEditor(scheduleId) {
+        const schedule = scheduleRecords.get(String(scheduleId));
+        if (!schedule) return;
+        await refreshScheduleSections();
+        await refreshScheduleRooms();
+        setScheduleModalMode('edit', schedule);
+        const roomSelect = document.getElementById('scheduleRoomSelect');
+        if (roomSelect) roomSelect.value = schedule.room_code || '';
+        openModal('scheduleModal');
+    }
+
+    async function loadSchoolSchedules() {
+        const slotFilter = getScheduleSlotFilter();
+        const section = document.getElementById('scheduleSectionFilter')?.value || '';
+        const url = new URL(scheduleApi, window.location.origin);
+        if (slotFilter.active) {
+            url.searchParams.set('day_of_week', slotFilter.day);
+            url.searchParams.set('start_time', slotFilter.start);
+            url.searchParams.set('end_time', slotFilter.end);
+        } else if (section) {
+            url.searchParams.set('year_section', section);
+        }
+
+        const response = await fetch(url, { credentials: 'include' });
+        const data = await response.json();
+        if (!data.success) {
+            showScheduleToast(data.message || 'Unable to load schedules.', 'error');
+            return;
+        }
+        const schedules = data.schedules || [];
+        renderSchoolScheduleCalendar(schedules, slotFilter);
+        document.getElementById('scheduleConsolidatedNote')?.classList.toggle('active', slotFilter.active);
+
+        if (!section || slotFilter.active) {
+            refreshScheduleSections(schedules);
+        }
+    }
+
+    async function refreshScheduleRooms() {
+        const select = document.getElementById('scheduleRoomSelect');
+        if (!select) return;
+        const response = await fetch('/gcst-system/backend/modules/rooms.php', { credentials: 'include' });
+        const data = await response.json();
+        if (!data.success) return;
+
+        select.innerHTML = '<option value="">- Select Room -</option>';
+        (data.rooms || []).filter(room => room.status !== 'Under Maintenance').forEach(room => {
+            const opt = document.createElement('option');
+            opt.value = room.room_id;
+            opt.textContent = `${room.room_id} - ${room.room_name}`;
+            opt.dataset.roomName = room.room_name || '';
+            select.appendChild(opt);
+        });
+    }
+
+    document.getElementById('scheduleSectionFilter')?.addEventListener('change', loadSchoolSchedules);
+    ['scheduleDateFilter', 'scheduleStartFilter', 'scheduleEndFilter'].forEach(id => {
+        document.getElementById(id)?.addEventListener('change', () => {
+            const slotFilter = getScheduleSlotFilter();
+            if (slotFilter.active) {
+                const sectionFilter = document.getElementById('scheduleSectionFilter');
+                if (sectionFilter) sectionFilter.value = '';
+            }
+            loadSchoolSchedules();
+        });
+    });
+
+    document.getElementById('clearScheduleSlotFilter')?.addEventListener('click', () => {
+        ['scheduleDateFilter', 'scheduleStartFilter', 'scheduleEndFilter'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) input.value = '';
+        });
+        document.getElementById('scheduleConsolidatedNote')?.classList.remove('active');
+        loadSchoolSchedules();
+    });
+
+    document.getElementById('manageSectionsBtn')?.addEventListener('click', async () => {
+        resetSectionForm();
+        document.getElementById('manageSectionsModal')?.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        await loadManagedSections();
+        await refreshScheduleSections();
+    });
+
+    document.getElementById('cancelSectionEditBtn')?.addEventListener('click', resetSectionForm);
+
+    document.getElementById('saveSectionBtn')?.addEventListener('click', async () => {
+        const id = document.getElementById('sectionIdInput')?.value || '';
+        const sectionName = document.getElementById('sectionNameInput')?.value.trim() || '';
+        if (!sectionName) {
+            showScheduleToast('Section name is required.', 'error');
+            return;
+        }
+
+        const response = await fetch(manageSectionsApi, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                action: id ? 'update' : 'add',
+                id,
+                section_name: sectionName
+            })
+        });
+        const data = await response.json();
+        if (data.success) {
+            showScheduleToast(data.message || 'Section saved.');
+            resetSectionForm();
+            await loadManagedSections();
+            await refreshScheduleSections();
+            loadSchoolSchedules();
+        } else {
+            showScheduleToast(data.message || 'Unable to save section.', 'error');
+        }
+    });
+
+    document.getElementById('sectionsManageList')?.addEventListener('click', async event => {
+        const row = event.target.closest('.manage-row');
+        if (!row) return;
+
+        if (event.target.closest('.edit-section-btn')) {
+            document.getElementById('sectionIdInput').value = row.dataset.sectionId || '';
+            document.getElementById('sectionNameInput').value = row.dataset.sectionName || '';
+            document.getElementById('saveSectionBtnText').textContent = 'Save Changes';
+            document.getElementById('cancelSectionEditBtn').style.display = 'inline-flex';
+            return;
+        }
+
+        if (event.target.closest('.delete-section-btn')) {
+            const id = row.dataset.sectionId || '';
+            const sectionName = row.dataset.sectionName || 'this section';
+            if (!confirm(`Delete "${sectionName}"? All class schedules associated with this section will also be removed.`)) return;
+
+            const response = await fetch(manageSectionsApi, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ action: 'delete', id })
+            });
+            const data = await response.json();
+            if (data.success) {
+                showScheduleToast(data.message || 'Section deleted.', 'warning');
+                resetSectionForm();
+                await loadManagedSections();
+                await refreshScheduleSections();
+                loadSchoolSchedules();
+            } else {
+                showScheduleToast(data.message || 'Unable to delete section.', 'error');
+            }
+        }
+    });
+
+    document.querySelector('[data-tab="schedules"]')?.addEventListener('click', () => {
+        setTimeout(() => {
+            loadManagedSections().then(() => refreshScheduleSections());
+            loadSchoolSchedules();
+            refreshScheduleRooms();
+        }, 80);
+    });
+
+    document.getElementById('addScheduleBtn')?.addEventListener('click', () => {
+        setScheduleModalMode('add');
+        refreshScheduleSections();
+        refreshScheduleRooms();
+        openModal('scheduleModal');
+    });
+
+    document.getElementById('saveScheduleBtn')?.addEventListener('click', async () => {
+        const roomSelect = document.getElementById('scheduleRoomSelect');
+        const days = Array.from(document.querySelectorAll('input[name="scheduleDay"]:checked')).map(day => day.value);
+        const scheduleId = document.getElementById('scheduleId')?.value || '';
+        if (scheduleId && days.length !== 1) {
+            showScheduleToast('Choose one day for this class schedule.', 'error');
+            return;
+        }
+
+        const body = new URLSearchParams({
+            schedule_id: scheduleId,
+            year_section: document.getElementById('scheduleYearSection')?.value.trim() || '',
+            subject_name: document.getElementById('scheduleSubject')?.value.trim() || '',
+            days: days.join(','),
+            day_of_week: days[0] || '',
+            start_time: document.getElementById('scheduleStartTime')?.value || '',
+            end_time: document.getElementById('scheduleEndTime')?.value || '',
+            room_code: roomSelect?.value || '',
+            room_name: roomSelect?.selectedOptions[0]?.dataset.roomName || '',
+        });
+
+        const response = await fetch(scheduleId ? updateScheduleApi : scheduleApi, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body
+        });
+        const data = await response.json();
+        if (data.success) {
+            closeModal('scheduleModal');
+            showScheduleToast(data.message || (scheduleId ? 'Schedule updated.' : 'Schedule saved.'));
+            loadSchoolSchedules();
+        } else {
+            showScheduleToast(data.message || 'Unable to save schedule.', 'error');
+        }
+    });
+
+    document.getElementById('deleteScheduleBtn')?.addEventListener('click', async () => {
+        const scheduleId = document.getElementById('scheduleId')?.value || '';
+        if (!scheduleId) return;
+        if (!confirm('Are you sure you want to delete this class schedule?')) return;
+
+        const response = await fetch(deleteScheduleApi, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ schedule_id: scheduleId })
+        });
+        const data = await response.json();
+        if (data.success) {
+            closeModal('scheduleModal');
+            showScheduleToast(data.message || 'Schedule deleted.', 'warning');
+            loadSchoolSchedules();
+        } else {
+            showScheduleToast(data.message || 'Unable to delete schedule.', 'error');
+        }
+    });
+
+    document.getElementById('schoolScheduleCalendar')?.addEventListener('click', event => {
+        const block = event.target.closest('.schedule-class-block');
+        if (!block) return;
+        openScheduleEditor(block.dataset.scheduleId);
+    });
+
+    window.checkRoomScheduleForSlot = function(resDate, startTime, endTime) {
+        const tab = document.querySelector('.dash-tab[data-tab="schedules"]');
+        tab?.click();
+
+        setTimeout(() => {
+            const dateInput = document.getElementById('scheduleDateFilter');
+            const startInput = document.getElementById('scheduleStartFilter');
+            const endInput = document.getElementById('scheduleEndFilter');
+            const sectionFilter = document.getElementById('scheduleSectionFilter');
+
+            if (dateInput) dateInput.value = (resDate || '').slice(0, 10);
+            if (startInput) startInput.value = (startTime || '').slice(0, 5);
+            if (endInput) endInput.value = (endTime || '').slice(0, 5);
+            if (sectionFilter) sectionFilter.value = '';
+
+            loadSchoolSchedules();
+            document.getElementById('tab-schedules')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
+    };
+
+    loadManagedSections().then(() => loadSchoolSchedules());
+    refreshScheduleRooms();
+
+    // ========== LOAD PREDICTIVE ANALYTICS ==========
+    async function loadPredictions() {
+        try {
+            const response = await api.get(API.predictionsReport, { report: 'all' });
+            if (!response.data) {
+                console.warn('Predictions not available:', response.message);
+            }
+
+            const data = response.data || {};
+            if (!response.success) {
+                console.warn('Predictions not available:', response.message);
+            }
+
+            // Reservation Forecast Chart
+            if (data.reservation_forecast && Array.isArray(data.reservation_forecast.forecast) && data.reservation_forecast.forecast.length > 0) {
+                const forecast = data.reservation_forecast;
+                const labels = forecast.forecast.map(f => f.label);
+                const predictions = forecast.forecast.map(f => f.predicted);
+
+                renderChart('reservationForecastChart', 'line', labels, predictions, {
+                    label: 'Predicted Reservations',
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 3,
+                });
+
+                // Update confidence
+                const confidence = forecast.regression?.r_squared ? Math.round(forecast.regression.r_squared * 100) : 0;
+                const confidenceEl = document.getElementById('forecastConfidence');
+                if (confidenceEl) confidenceEl.textContent = confidence;
+            } else {
+                renderChart('reservationForecastChart', 'line', [], [], {
+                    label: 'Predicted Reservations',
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                });
+                const confidenceEl = document.getElementById('forecastConfidence');
+                if (confidenceEl) confidenceEl.textContent = '0';
+            }
+
+            // Equipment Demand Forecast Chart
+            if (data.equipment_forecast && Array.isArray(data.equipment_forecast.forecast) && data.equipment_forecast.forecast.length > 0) {
+                const forecast = data.equipment_forecast;
+                const labels = forecast.forecast.map(f => f.label);
+                const predictions = forecast.forecast.map(f => f.predicted);
+
+                renderChart('equipmentDemandForecastChart', 'line', labels, predictions, {
+                    label: 'Predicted Equipment Demand',
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 3,
+                    borderWidth: 2,
+                });
+
+                // Update trend
+                const trendEl = document.getElementById('equipmentTrend');
+                if (trendEl) {
+                    const trend = forecast.trend_direction || 'stable';
+                    trendEl.textContent = trend.charAt(0).toUpperCase() + trend.slice(1);
+                    if (trend === 'increasing') trendEl.style.color = '#dc2626';
+                    else if (trend === 'decreasing') trendEl.style.color = '#10b981';
+                }
+            } else {
+                renderChart('equipmentDemandForecastChart', 'line', [], [], {
+                    label: 'Predicted Equipment Demand',
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                });
+                const trendEl = document.getElementById('equipmentTrend');
+                if (trendEl) trendEl.textContent = 'Insufficient data';
+            }
+
+            // Top Rooms Table
+            if (data.top_rooms && Array.isArray(data.top_rooms)) {
+                const topRoomsTable = document.getElementById('topRoomsTable');
+                if (topRoomsTable) {
+                    topRoomsTable.innerHTML = data.top_rooms.length > 0
+                        ? data.top_rooms.map(room => `
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 10px;">${escapeHtml(room.room_code)} - ${escapeHtml(room.room_name)}</td>
+                                <td style="padding: 10px; text-align: center; font-weight: 700; color: #3b82f6;">${room.total_reservations}</td>
+                                <td style="padding: 10px; text-align: center; color: #64748b;">${parseFloat(room.avg_per_day).toFixed(1)}</td>
+                            </tr>
+                        `).join('')
+                        : '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8;">No usage data available</td></tr>';
+                }
+            } else {
+                const topRoomsTable = document.getElementById('topRoomsTable');
+                if (topRoomsTable) {
+                    topRoomsTable.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8;">No usage data available</td></tr>';
+                }
+            }
+
+            // Top Equipment Table
+            if (data.top_equipment && Array.isArray(data.top_equipment)) {
+                const topEquipmentTable = document.getElementById('topEquipmentTable');
+                if (topEquipmentTable) {
+                    topEquipmentTable.innerHTML = data.top_equipment.length > 0
+                        ? data.top_equipment.map(eq => `
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 10px;">${escapeHtml(eq.equip_code)} - ${escapeHtml(eq.name)}</td>
+                                <td style="padding: 10px; text-align: center; font-weight: 700; color: #f59e0b;">${eq.total_borrows}</td>
+                                <td style="padding: 10px; text-align: center; color: #64748b;">${parseFloat(eq.avg_per_day).toFixed(1)}</td>
+                            </tr>
+                        `).join('')
+                        : '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8;">No usage data available</td></tr>';
+                }
+            } else {
+                const topEquipmentTable = document.getElementById('topEquipmentTable');
+                if (topEquipmentTable) {
+                    topEquipmentTable.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8;">No usage data available</td></tr>';
+                }
+            }
+
+            // Forecast Summary
+            if (data.forecast_summary && data.forecast_summary.status === 'success') {
+                const summary = data.forecast_summary;
+                
+                const peakDayEl = document.getElementById('predictedPeakDay');
+                if (peakDayEl) peakDayEl.textContent = summary.predicted_peak_day || '—';
+
+                const peakValueEl = document.getElementById('predictedPeakValue');
+                if (peakValueEl) peakValueEl.textContent = summary.predicted_peak_value || '—';
+
+                const trendEl = document.getElementById('forecastTrend');
+                if (trendEl) trendEl.textContent = (summary.trend || 'Stable').toUpperCase();
+
+                const avgEl = document.getElementById('averageForecasted');
+                if (avgEl) avgEl.textContent = Math.round(summary.average_daily_forecast) || '—';
+
+                const summaryText = document.getElementById('forecastSummaryText');
+                if (summaryText) {
+                    const trendText = summary.trend === 'increasing'
+                        ? 'showing an <strong style="color: #dc2626;">upward trend</strong>'
+                        : summary.trend === 'decreasing'
+                            ? 'showing a <strong style="color: #10b981;">downward trend</strong>'
+                            : 'remaining <strong>relatively stable</strong>';
+                    
+                    summaryText.innerHTML = `
+                        <strong>Prediction Insights:</strong> Based on linear regression analysis of historical data, 
+                        the system is ${trendText} in reservation demand. 
+                        The predicted peak usage is expected on <strong>${escapeHtml(summary.predicted_peak_day)}</strong> 
+                        with an estimated <strong>${summary.predicted_peak_value} reservations</strong>. 
+                        Model confidence: <strong>${summary.model_confidence}</strong>
+                        (R² = ${parseFloat(summary.regression?.r_squared || 0).toFixed(3)}).
+                    `;
+                }
+            } else {
+                const summary = data.forecast_summary || data.reservation_forecast || {};
+                const summaryText = document.getElementById('forecastSummaryText');
+                if (summaryText) {
+                    summaryText.innerHTML = `
+                        <strong>Prediction Insights:</strong> ${escapeHtml(summary.message || response.message || 'Not enough historical data for prediction generation.')}
+                        Required records: <strong>${summary.required_records ?? '-'}</strong>.
+                        Available records: <strong>${summary.available_records ?? 0}</strong>.
+                    `;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading predictions:', error);
+        }
+    }
+
+    // Load predictions after a short delay to allow initial dashboard load
+    setTimeout(loadPredictions, 800);
+});
+</script>
+</body>
+</html>

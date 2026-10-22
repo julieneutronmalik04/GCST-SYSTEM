@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room Availability — GCST</title>
+  <link rel="stylesheet" href="css/style.css?v=19" />
+  <link rel="stylesheet" href="css/room-availability.css?v=1" />
+</head>
+<body class="public-availability-page">
+  <header class="availability-header">
+    <a href="login.html" class="availability-brand">GCST <span>Room Availability</span></a>
+    <a href="login.html" class="btn btn-secondary btn-sm">Back to Login</a>
+  </header>
+  <main class="availability-main">
+    <p class="availability-eyebrow">PUBLIC ROOM VIEWER</p>
+    <h1>Find a room, check its availability.</h1>
+    <p class="availability-intro">Scan the QR code on a room door or search below. No login required.</p>
+    <section class="availability-controls" aria-label="Choose a room">
+      <div>
+        <label for="publicRoomScan">Scan room QR code</label>
+        <div class="availability-input-row">
+          <input id="publicRoomScan" type="text" placeholder="Scan or enter room code / ID" autocomplete="off" spellcheck="false" autofocus aria-describedby="roomLookupMessage" />
+          <button id="publicRoomScanBtn" type="button" class="btn btn-primary">Look Up</button>
+        </div>
+        <small>Click here before using a USB QR scanner.</small>
+      </div>
+      <div>
+        <label for="publicRoomSearch">Or search and select a room</label>
+        <input id="publicRoomSearch" type="search" list="publicRoomList" placeholder="Search by room name or code…" autocomplete="off" aria-describedby="roomLookupMessage" />
+        <datalist id="publicRoomList"></datalist>
+        <small>Choose a suggestion to view its live status.</small>
+      </div>
+      <p id="roomLookupMessage" role="status" aria-live="polite">Loading rooms…</p>
+    </section>
+    <div class="availability-refresh-row">
+      <p id="availabilityUpdated" role="status">Automatically refreshes every 30 seconds.</p>
+      <button id="availabilityRefresh" type="button" class="btn btn-secondary btn-sm">Refresh Now</button>
+    </div>
+    <section id="publicRoomDetails" class="availability-card" aria-label="Selected room" hidden>
+      <div class="availability-card-heading">
+        <div><p id="publicRoomCode" class="availability-eyebrow"></p><h2 id="publicRoomName"></h2></div>
+        <span id="publicRoomStatus" class="availability-status" role="status"></span>
+      </div>
+      <dl class="availability-facts">
+        <div><dt>Capacity</dt><dd id="publicRoomCapacity"></dd></div>
+        <div><dt>Location / Building</dt><dd id="publicRoomLocation"></dd></div>
+        <div><dt>Room Type</dt><dd id="publicRoomType"></dd></div>
+      </dl>
+      <p id="publicRoomCurrent" class="availability-current"></p>
+      <h3>Today's approved schedule <span id="publicScheduleDate"></span></h3>
+      <ul id="publicRoomSchedule" class="availability-schedule"></ul>
+      <p class="availability-note">Times follow the school's system clock. Future reservations do not make a room occupied now. Availability can change; sign in to request a reservation.</p>
+    </section>
+    <p id="availabilityEmpty" class="availability-empty">Select a room above to see its current status, capacity, location, and today's schedule.</p>
+  </main>
+  <script src="../backend/js/public-room-availability.js?v=1"></script>
+</body>
+</html>

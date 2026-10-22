@@ -1,0 +1,45 @@
+.public-availability-page { margin: 0; min-height: 100vh; background: #f4f7fb; color: #0f172a; font-family: 'Inter', system-ui, sans-serif; }
+.availability-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px max(20px, calc((100vw - 1040px) / 2)); background: #fff; border-bottom: 1px solid #e2e8f0; }
+.availability-brand { color: #1d4ed8; text-decoration: none; font-weight: 800; font-size: 1.25rem; }
+.availability-brand span { margin-left: 8px; font-size: .9rem; color: #475569; font-weight: 500; }
+.availability-main { max-width: 1040px; margin: 0 auto; padding: 42px 20px; }
+.availability-eyebrow { color: #2563eb; font-size: .75rem; font-weight: 800; letter-spacing: .08em; margin: 0 0 8px; }
+.availability-main h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); margin: 0 0 10px; line-height: 1.2; }
+.availability-intro { color: #64748b; margin-bottom: 28px; }
+.availability-controls, .availability-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 24px; box-shadow: 0 6px 24px #0f172a06; }
+.availability-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.availability-controls label { display: block; margin-bottom: 8px; font-size: .8rem; font-weight: 700; }
+.availability-controls input { box-sizing: border-box; width: 100%; min-width: 0; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font: inherit; font-size: .9rem; background: #fff; color: #0f172a; }
+.availability-controls input:focus { outline: 3px solid #bfdbfe; border-color: #2563eb; }
+.availability-input-row { display: flex; gap: 8px; }
+.availability-input-row input { flex: 1; }
+.availability-input-row button { flex-shrink: 0; }
+.availability-controls small { display: block; color: #64748b; margin-top: 8px; font-size: .75rem; }
+#roomLookupMessage { grid-column: 1 / -1; margin: 0; font-size: .85rem; color: #475569; overflow-wrap: anywhere; }
+#roomLookupMessage[data-error="true"] { color: #b91c1c; }
+.availability-refresh-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0; }
+.availability-refresh-row p, .availability-note { font-size: .78rem; color: #64748b; line-height: 1.6; }
+.availability-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.availability-card h2 { font-size: 1.5rem; margin: 0; overflow-wrap: anywhere; }
+.availability-status { padding: 8px 14px; border-radius: 24px; font-size: .8rem; font-weight: 700; background: #e2e8f0; white-space: nowrap; }
+.availability-status[data-status="Available"] { background: #d1fae5; color: #065f46; }
+.availability-status[data-status="Occupied"] { background: #fef3c7; color: #92400e; }
+.availability-status[data-status="Under Maintenance"] { background: #fee2e2; color: #991b1b; }
+.availability-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 22px 0; margin: 16px 0 0; border-bottom: 1px solid #e2e8f0; }
+.availability-facts dt { font-size: .75rem; color: #64748b; margin-bottom: 6px; }
+.availability-facts dd { margin: 0; font-size: .9rem; font-weight: 600; overflow-wrap: anywhere; }
+.availability-current { background: #eff6ff; padding: 14px; border-radius: 10px; font-size: .9rem; line-height: 1.6; }
+.availability-card h3 { font-size: .95rem; margin-top: 24px; }
+#publicScheduleDate { color: #64748b; font-weight: 400; font-size: .8rem; }
+.availability-schedule { list-style: none; padding: 0; max-height: 280px; overflow-y: auto; }
+.availability-schedule li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: .85rem; }
+.availability-schedule li[data-current="true"] { color: #92400e; font-weight: 700; }
+.availability-empty { text-align: center; color: #64748b; padding: 40px 20px; line-height: 1.6; }
+@media (max-width: 640px) {
+  .availability-brand span { display: none; }
+  .availability-controls { grid-template-columns: 1fr; }
+  .availability-main { padding: 28px 16px; }
+  .availability-controls, .availability-card { padding: 18px; }
+  .availability-card-heading { align-items: flex-start; flex-direction: column; }
+  .availability-facts { grid-template-columns: 1fr; gap: 16px; }
+}

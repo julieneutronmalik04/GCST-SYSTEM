@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" class="borrower-registration">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GCST Resource Management System — Register Borrower</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css?v=18"/>
+  <style>
+    /* Keep these viewport and panel rules specific to borrower registration. */
+    html.borrower-registration,
+    .borrower-registration body {
+      height: 100vh !important;
+      min-height: 0;
+      overflow: hidden !important;
+    }
+
+    .borrower-registration .login-split {
+      height: 100vh;
+      min-height: 0;
+      padding-bottom: 48px;
+      overflow: hidden;
+    }
+
+    .borrower-registration .login-left,
+    .borrower-registration .login-right {
+      min-width: 0;
+      min-height: 0;
+      height: 100%;
+      padding: 24px clamp(24px, 4vw, 64px);
+    }
+
+    .borrower-registration .login-left {
+      justify-content: flex-start;
+      overflow-y: auto;
+    }
+
+    .borrower-intro {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 480px;
+      margin: auto;
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .borrower-registration .login-logo-link {
+      max-width: 100%;
+      margin-bottom: 28px;
+    }
+
+    .borrower-registration .login-logo {
+      margin-bottom: 0;
+    }
+
+    .borrower-registration .login-logo-icon {
+      flex-shrink: 0;
+    }
+
+    .borrower-registration .login-logo-link:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 6px;
+      border-radius: var(--radius-md);
+    }
+
+    .borrower-registration .login-hero-desc {
+      margin-bottom: 28px;
+    }
+
+    .borrower-registration .login-card {
+      min-height: 0;
+      max-height: 90vh;
+      max-height: min(90vh, 100%);
+      margin: 0;
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+    }
+
+    @media (max-width: 980px) {
+      .borrower-registration .login-split {
+        display: grid;
+        grid-template-rows: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      }
+
+      .borrower-registration .login-left,
+      .borrower-registration .login-right {
+        padding: 16px 24px;
+      }
+
+      .borrower-registration .login-hero-title {
+        font-size: 1.8rem;
+      }
+
+      .borrower-registration .login-logo-link,
+      .borrower-registration .login-hero-label,
+      .borrower-registration .login-hero-title,
+      .borrower-registration .login-hero-desc {
+        margin-bottom: 12px;
+      }
+
+      .borrower-registration .login-features {
+        gap: 8px;
+      }
+
+      .borrower-registration .login-card {
+        padding: 28px 24px;
+      }
+    }
+
+    @supports (height: 100dvh) {
+      html.borrower-registration,
+      .borrower-registration body,
+      .borrower-registration .login-split {
+        height: 100dvh !important;
+      }
+
+      .borrower-registration .login-card {
+        max-height: min(90dvh, 100%);
+      }
+    }
+  </style>
+</head>
+<body class="login-page">
+
+  <div class="login-split">
+
+    <div class="login-left">
+      <div class="borrower-intro">
+      <a href="login.html" class="login-logo-link" aria-label="Back to login page">
+        <div class="login-logo">
+          <div class="login-logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <span class="login-logo-text">Granby Colleges of Science and Technology</span>
+        </div>
+      </a>
+
+      <p class="login-hero-label">Resource Management System</p>
+      <h1 class="login-hero-title">Borrower<br/><span>Registration</span></h1>
+      <p class="login-hero-desc">
+        Register a student or faculty member for equipment borrowing and campus resource access.
+      </p>
+
+      <div class="login-features">
+        <div class="login-feature">
+          <div class="login-feature-dot">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 17h3m3 0h-3m0-3v3m0 3v-3"/></svg>
+          </div>
+          <span>QR Code-based equipment tracking</span>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-dot">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </div>
+          <span>Room reservation &amp; scheduling</span>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-dot">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <span>Predictive analytics &amp; insights</span>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="login-right">
+      <div class="login-card">
+        <div class="login-card-header">
+          <p class="login-card-eyebrow">Borrower Portal</p>
+          <h2 class="login-card-title">Register as Borrower</h2>
+          <p class="login-card-sub">Create a borrowing account</p>
+        </div>
+
+        <div class="login-error" id="formMessage" role="alert"></div>
+
+        <form action="../backend/process-borrower.php" method="POST" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="student_faculty_id">Student / Faculty ID Number</label>
+            <div class="form-input-wrap">
+              <input class="form-input" type="text" id="student_faculty_id" name="student_faculty_id" placeholder="Enter ID number" autocomplete="off" required />
+              <svg class="form-input-icon" viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="first_name">First Name</label>
+            <div class="form-input-wrap">
+              <input class="form-input" type="text" id="first_name" name="first_name" placeholder="Enter first name" autocomplete="given-name" required />
+              <svg class="form-input-icon" viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="last_name">Last Name</label>
+            <div class="form-input-wrap">
+              <input class="form-input" type="text" id="last_name" name="last_name" placeholder="Enter last name" autocomplete="family-name" required />
+              <svg class="form-input-icon" viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="department_course">Department / Course</label>
+            <div class="form-input-wrap">
+              <input class="form-input" type="text" id="department_course" name="department_course" placeholder="e.g. BSIT / Computer Science" autocomplete="organization" required />
+              <svg class="form-input-icon" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <path d="M16 2v4M8 2v4M3 10h18"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <div class="form-input-wrap">
+              <input class="form-input" type="email" id="email" name="email" placeholder="Enter email address" autocomplete="email" required />
+              <svg class="form-input-icon" viewBox="0 0 24 24">
+                <path d="M4 5h16v14H4z"/>
+                <path d="M4 7l8 6 8-6"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 24px;">
+            <label class="form-label" for="contact_number">Contact Number</label>
+            <div class="form-input-wrap">
+              <input class="form-input" type="tel" id="contact_number" name="contact_number" placeholder="Enter contact number" autocomplete="tel" required />
+              <svg class="form-input-icon" viewBox="0 0 24 24">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.84 19.84 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.84 19.84 0 012 4.18 2 2 0 014 2h3a2 2 0 012 1.72c.13.95.36 1.88.7 2.77a2 2 0 01-.45 2.11L8 9.91a16 16 0 006.09 6.09l1.31-1.25a2 2 0 012.11-.45c.89.34 1.82.57 2.77.7A2 2 0 0122 16.92z"/>
+              </svg>
+            </div>
+          </div>
+
+          <button class="btn-login" type="submit">Submit Registration</button>
+        </form>
+
+        <div style="margin-top: 18px; text-align: center;">
+          <a href="login.html" style="font-size: 0.82rem; color: var(--primary); font-weight: 600; text-decoration: none;">
+            ← Back to Login
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="login-footer">&copy; 2026 Granby Colleges of Science and Technology</footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get('status');
+      const message = params.get('message');
+      const box = document.getElementById('formMessage');
+
+      if (!box || !status || !message) return;
+
+      box.textContent = decodeURIComponent(message);
+      box.classList.add('show');
+
+      if (status === 'success') {
+        box.style.background = '#ecfdf5';
+        box.style.border = '1px solid #86efac';
+        box.style.color = '#166534';
+      } else {
+        box.style.background = '#fef2f2';
+        box.style.border = '1px solid #fecaca';
+        box.style.color = '#b91c1c';
+      }
+    });
+  </script>
+</body>
+</html>

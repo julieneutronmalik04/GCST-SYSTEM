@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Faculty Dashboard — GCST RMS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css?v=20"/>
+  <style>
+    .faculty-room-filters {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .faculty-location-filter {
+      min-width: 180px;
+      padding: 8px 38px 8px 15px;
+      font-family: var(--font-body), Arial, sans-serif;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--slate-700);
+      background-color: var(--white);
+      border: 1.5px solid #d1e3ff;
+      border-radius: 999px;
+      outline: none;
+      box-shadow: 0 1px 2px rgba(37, 99, 235, .06);
+      cursor: pointer;
+      transition: all var(--transition);
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--primary) 50%),
+        linear-gradient(135deg, var(--primary) 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) 50%,
+        calc(100% - 13px) 50%;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .faculty-location-filter:hover {
+      border-color: #93c5fd;
+      color: var(--navy);
+    }
+
+    .faculty-location-filter:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px var(--primary-glow), 0 1px 2px rgba(37, 99, 235, .08);
+    }
+
+    .reserve-room-layout {
+      display: flex;
+      align-items: stretch;
+      gap: 24px;
+      width: 100%;
+    }
+
+    .reserve-room-layout .reservation-left-col {
+      flex: 0 0 calc(40% - 12px);
+      max-width: calc(40% - 12px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .reserve-room-layout .reservation-right-col {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .live-availability-card {
+      flex: 1;
+      max-width: none;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      background: var(--white);
+      border-radius: 20px;
+    }
+
+    .live-availability-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .live-availability-header h3 {
+      margin: 0;
+    }
+
+    .live-availability-body {
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(220px, 260px);
+      gap: 32px;
+      flex: 1;
+      align-items: flex-start;
+    }
+
+    .live-room-grid-scroll {
+      max-height: 450px;
+      overflow-y: auto;
+      padding-right: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #60a5fa #eff6ff;
+    }
+
+    .live-room-grid-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .live-room-grid-scroll::-webkit-scrollbar-track {
+      background: #eff6ff;
+      border-radius: 999px;
+    }
+
+    .live-room-grid-scroll::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #93c5fd, #2563eb);
+      border: 2px solid #eff6ff;
+      border-radius: 999px;
+    }
+
+    .live-room-grid-scroll::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #60a5fa, #1d4ed8);
+    }
+
+    .live-availability-body .room-grid {
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 14px;
+    }
+
+    .live-room-chart {
+      box-shadow: none;
+      border: 1px solid var(--slate-200);
+      padding: 18px;
+      border-radius: 20px;
+      max-width: none;
+      height: 280px;
+      align-self: flex-start;
+      background: var(--white);
+      flex: 0 0 auto;
+    }
+
+    .faculty-room-chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 170px;
+      min-height: 170px;
+      margin: 0 auto;
+    }
+
+    #facultyRoomChart {
+      position: relative;
+      z-index: 2;
+      display: block;
+      width: 100% !important;
+      height: 170px !important;
+      min-height: 170px;
+    }
+
+    .faculty-chart-placeholder {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transition: opacity .18s ease;
+    }
+
+    .faculty-chart-placeholder::before {
+      content: "";
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, var(--white) 0 55%, transparent 56%),
+        conic-gradient(#10b981 0 42%, #f59e0b 42% 70%, #ef4444 70% 100%);
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, .04);
+    }
+
+    .faculty-chart-placeholder.is-hidden {
+      opacity: 0;
+    }
+
+    .reservation-validation-error {
+      display: none;
+      margin-top: 6px;
+      font-size: .76rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--danger);
+    }
+
+    .reservation-validation-error.is-visible {
+      display: block;
+    }
+
+    .modal-form-input.validation-invalid,
+    .modal-form-select.validation-invalid {
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, .12) !important;
+    }
+
+    .notif-item {
+      cursor: pointer;
+    }
+
+    .notif-item:hover {
+      background: #eff6ff;
+    }
+
+    .reservation-live-status[data-state="available"] { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
+    .reservation-live-status[data-state="waiting"] { color: #92400e; background: #fffbeb; border-color: #fde68a; }
+    .reservation-live-status[data-state="checking"] { color: #475569; background: #f8fafc; border-color: #cbd5e1; }
+
+    .room-qr-scan-box {
+      padding: 14px;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      background: #eff6ff;
+    }
+    .room-qr-scan-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+    .room-qr-scan-controls input { flex: 1 1 180px; min-width: 0; }
+    #roomQrScanStatus { margin: 8px 0 0; font-size: .78rem; color: #475569; line-height: 1.5; overflow-wrap: anywhere; }
+    #roomQrScanStatus[data-error="true"] { color: #b91c1c; }
+    #facultyReserveRoomsGrid .room-item.room-qr-selected { outline: 3px solid #2563eb; outline-offset: 2px; }
+
+    .reservation-status-sticky {
+      position: sticky;
+      top: 20px;
+      align-self: flex-start;
+      z-index: 1;
+    }
+
+    @media (max-width: 720px) {
+      .faculty-room-filters,
+      .faculty-room-filters .search-wrap,
+      .faculty-room-filters .search-input,
+      .faculty-location-filter {
+        width: 100%;
+      }
+
+      .reserve-room-layout {
+        flex-direction: column;
+      }
+
+      .reserve-room-layout .reservation-left-col,
+      .reserve-room-layout .reservation-right-col {
+        flex: 1 1 auto;
+        max-width: none;
+      }
+
+      .live-availability-body {
+        grid-template-columns: 1fr;
+      }
+
+      .reservation-status-sticky {
+        position: static;
+        width: 100%;
+        max-width: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="dashboard-page">
+
+  <!-- HEADER -->
+  <header class="dash-header">
+    <a href="/gcst-system/frontend/login.html" class="dash-header-logo">
+      <div class="dash-header-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="dash-header-logo-text">
+        Granby Colleges of Science and Technology
+        <small>ROOM RESERVATION & EQUIPMENT INVENTORY</small>
+      </div>
+    </a>
+
+    <div class="dash-header-divider"></div>
+    <div class="dash-header-title">
+      <span>Faculty Dashboard</span>
+    </div>
+
+    <div class="dash-header-actions">
+      <button class="icon-btn" title="Notifications" id="notifBtn">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="notif-badge"></span>
+      </button>
+      <button class="profile-btn" id="profileBtn">
+        <div class="profile-avatar" style="background:linear-gradient(135deg,#10b981,#06b6d4)">FC</div>
+        <div>
+          <div class="profile-name">Faculty</div>
+          <div class="profile-role">Teaching Staff</div>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- TAB NAVIGATION -->
+  <nav class="dash-tabs" id="dashTabs">
+    <button class="dash-tab active" data-tab="available">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Available Rooms
+    </button>
+    <button class="dash-tab" data-tab="reserve">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Reserve a Room
+    </button>
+    <button class="dash-tab" data-tab="my-reservations">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      My Reservations
+    </button>
+    <button class="dash-tab" data-tab="trends">
+      <svg viewBox="0 0 24 24"><path d="M21 21H3V3h8V1H3a2 2 0 00-2 2v18a2 2 0 002 2h18z"/><path d="M18 7l-8.5 8.5-3.5-3.5-5 5"/></svg>
+      Trends &amp; Insights
+    </button>
+    <button class="dash-tab" data-tab="profile">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      My Profile
+    </button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="dash-main">
+
+    <!-- TAB: AVAILABLE ROOMS -->
+    <div class="tab-panel active" id="tab-available">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Available Rooms</h2>
+          <p class="section-subtitle">Browse rooms currently available for reservation</p>
+        </div>
+        <div class="faculty-room-filters">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" type="text" id="availRoomSearch" placeholder="Search rooms..."/>
+          </div>
+          <select class="faculty-location-filter" id="facultyLocationFilter" aria-label="Filter rooms by location">
+            <option value="All">All Locations</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon sky"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          <div><div class="stat-value" id="facTotalCount">0</div><div class="stat-label">Total Rooms</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="stat-value" id="facAvailCount">0</div><div class="stat-label">Available Rooms</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+          <div><div class="stat-value" id="facOccupiedCount">0</div><div class="stat-label">Occupied Rooms</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+          <div><div class="stat-value" id="facMaintCount">0</div><div class="stat-label">Under Maintenance</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div><div class="stat-value" id="facMyCount">0</div><div class="stat-label">My Reservations</div></div>
+        </div>
+      </div>
+
+      <div id="availRoomsGrid" class="maint-grid"></div>
+    </div>
+
+    <!-- ─── TAB: RESERVE A ROOM ─── -->
+    <div class="tab-panel" id="tab-reserve">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Reserve a Room</h2>
+          <p class="section-subtitle">Submit a reservation request for approval by the administrator</p>
+        </div>
+      </div>
+      <div class="reserve-room-layout">
+        <!-- Left Column: Form (40%) -->
+        <div class="reservation-left-col">
+          <div class="reservation-form-card" style="margin-bottom: 16px;">
+            <h3>
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              New Reservation Request
+            </h3>
+            <p id="vipReservationNotice" class="vip-reservation-notice" hidden><strong>Priority: VIP.</strong> Your requests are prioritized for admin review. Existing bookings change only after admin approval.</p>
+
+            <div class="modal-form-group room-qr-scan-box">
+              <label class="modal-form-label" for="roomQrScanInput">Scan room QR code or select manually below</label>
+              <div class="room-qr-scan-controls">
+                <input class="modal-form-input" type="text" id="roomQrScanInput" placeholder="Scan room code or ID (e.g., GA-309)" autocomplete="off" spellcheck="false" aria-describedby="roomQrScanStatus" />
+                <button class="btn btn-primary btn-sm" type="button" id="roomQrScanBtn">Select Room</button>
+              </div>
+              <p id="roomQrScanStatus" role="status" aria-live="polite">Connect a USB QR scanner, then scan here. You can also type a room code or ID.</p>
+            </div>
+            <div class="modal-form-group">
+              <label class="modal-form-label" for="resRoomSelect">Select Room</label>
+              <select class="modal-form-select" id="resRoomSelect" required>
+                <option value="">— Choose a room —</option>
+              </select>
+              <div class="smart-suggestion-box" id="roomSmartSuggestion" hidden></div>
+              <div class="reservation-validation-error" id="roomValidationError"></div>
+            </div>
+            <div class="modal-form-row">
+              <div class="modal-form-group">
+                <label class="modal-form-label">Date</label>
+                <input class="modal-form-input" type="date" id="resDate" required/>
+              </div>
+              <div class="modal-form-group">
+                <label class="modal-form-label">Start Time</label>
+                <input class="modal-form-input" type="time" id="resTimeStart" required aria-describedby="scheduleValidationError"/>
+              </div>
+            </div>
+            <div class="reservation-validation-error reservation-live-status" id="scheduleValidationError" role="status" aria-live="polite"></div>
+            <div class="modal-form-row">
+              <div class="modal-form-group">
+                <label class="modal-form-label">End Time</label>
+                <input class="modal-form-input" type="time" id="resTimeEnd" required/>
+              </div>
+              <div class="modal-form-group">
+                <label class="modal-form-label">Number of Students</label>
+                <input class="modal-form-input" type="number" id="resAttendees" placeholder="e.g. 35" min="1" value="1" required/>
+              </div>
+            </div>
+            
+            <div class="reservation-validation-error" id="capacityValidationError"></div>
+            <div class="modal-form-group">
+              <label class="modal-form-label">Purpose / Subject</label>
+              <textarea class="modal-form-textarea" id="resPurpose" placeholder="e.g. Laboratory session for BSIT 3-A, Network Fundamentals"></textarea>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-primary" id="submitResBtn">
+                <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Submit Request
+              </button>
+              <button class="btn btn-secondary" id="clearResBtn">Clear</button>
+            </div>
+          </div>
+          
+          <div style="background:var(--primary-pale);border:1px solid #bfdbfe;border-radius:var(--radius-md);padding:16px 20px;font-size:.82rem;color:var(--slate-600)">
+            <strong style="color:var(--primary)">ℹ Note:</strong> Your reservation request will be reviewed by the Administrator.
+            Conflicting requests join the Waiting List. If the slot is released, they return to Pending for admin review. You will be notified of status changes.
+          </div>
+        </div>
+
+        <!-- Right Column: Room Status Grid (60%) -->
+        <div class="reservation-right-col">
+          <div class="reservation-form-card live-availability-card">
+            <div class="live-availability-header">
+              <h3>
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                Live Room Availability
+              </h3>
+              <select class="faculty-location-filter" id="reserveLocationFilter" aria-label="Filter live room availability by location">
+                <option value="All">All Locations</option>
+              </select>
+            </div>
+            
+            <div class="live-availability-body">
+              <!-- Grid -->
+              <div class="room-grid-container">
+                <div class="live-room-grid-scroll">
+                  <div class="room-grid" id="facultyReserveRoomsGrid">
+                    <div class="room-grid-empty">Loading room status...</div>
+                  </div>
+                </div>
+                <div class="room-grid-legend" style="margin-top: 24px;">
+                  <div class="legend-row">
+                    <div class="legend-item"><div class="legend-color occupied"></div><span>Occupied</span></div>
+                    <div class="legend-item"><div class="legend-color available"></div><span>Available</span></div>
+                    <div class="legend-item"><div class="legend-color maintenance"></div><span>Maintenance</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Overview Chart inside Right Column -->
+              <div class="data-card chart-card chart-card-donut live-room-chart">
+                <div class="data-card-header" style="padding: 0; margin-bottom: 12px; border: none;">
+                  <span class="data-card-title" style="font-size: 0.85rem;"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Room Overview</span>
+                </div>
+                <div class="chart-wrap donut-center-container faculty-room-chart-wrap">
+                  <div class="faculty-chart-placeholder" id="facultyRoomChartPlaceholder" aria-hidden="true"></div>
+                  <canvas id="facultyRoomChart" width="260" height="170"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: MY RESERVATIONS -->
+    <div class="tab-panel" id="tab-my-reservations">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">My Reservations</h2>
+          <p class="section-subtitle">Track the status of your submitted reservation requests</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
+        <!-- Status Chart inside My Reservations -->
+        <div class="data-card chart-card chart-card-donut reservation-status-sticky" style="flex: 0 0 250px; max-width: 250px;">
+          <div class="data-card-header">
+            <span class="data-card-title" style="font-size: 0.9rem;"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Reservation Status</span>
+          </div>
+          <div class="chart-wrap donut-center-container" style="height: 180px;">
+            <canvas id="facultyReservationChart"></canvas>
+          </div>
+        </div>
+
+        <div class="data-card faculty-reservation-history-card" id="myReservationHistoryCard" style="flex: 1; min-width: 300px;">
+          <div class="data-card-header">
+            <span class="data-card-title">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              Reservation History
+            </span>
+            <div class="faculty-card-actions">
+              <label class="modal-form-label" for="facultyReservationStatusFilter">Status</label>
+              <select class="search-input" id="facultyReservationStatusFilter">
+                <option value="all">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Waiting List">Waiting List</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap faculty-reservation-history-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Reservation ID</th>
+                  <th>Room</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Purpose</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="myResTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: TRENDS & INSIGHTS -->
+    <div class="tab-panel" id="tab-trends">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Reservation Trends &amp; Insights</h2>
+          <p class="section-subtitle">Historical patterns and recommendations for peak booking periods</p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div style="padding: 20px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 12px;">
+          <div style="font-size: 12px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; font-weight: 700;">Peak Booking Day</div>
+          <div style="font-size: 22px; font-weight: 700; color: #1e40af;" id="facultyPeakDay">—</div>
+        </div>
+        <div style="padding: 20px; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 12px;">
+          <div style="font-size: 12px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; font-weight: 700;">Average Peak Value</div>
+          <div style="font-size: 22px; font-weight: 700; color: #15803d;" id="facultyPeakValue">—</div>
+        </div>
+        <div style="padding: 20px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 12px;">
+          <div style="font-size: 12px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; font-weight: 700;">Trend Direction</div>
+          <div style="font-size: 22px; font-weight: 700; color: #b45309;" id="facultyTrendDir">—</div>
+        </div>
+      </div>
+
+      <div class="data-card faculty-top-rooms-card" style="margin-bottom: 24px;">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Most Frequently Used Rooms (90 Days)
+          </span>
+        </div>
+        <div class="faculty-top-rooms-scroll">
+          <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 2px solid #e2e8f0;">
+                <th style="padding: 12px; text-align: left; color: #475569; font-weight: 700;">Room</th>
+                <th style="padding: 12px; text-align: center; color: #475569; font-weight: 700;">Reservations</th>
+                <th style="padding: 12px; text-align: center; color: #475569; font-weight: 700;">Avg Per Day</th>
+              </tr>
+            </thead>
+            <tbody id="facultyTopRoomsTable">
+              <tr><td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8;">Loading trend data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-header">
+          <span class="data-card-title">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Analysis &amp; Recommendations
+          </span>
+        </div>
+        <div id="facultyTrendAnalysis" style="padding: 20px; font-size: 14px; line-height: 1.6; color: #475569;">
+          <p>Loading analysis...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: PROFILE -->
+    <div class="tab-panel" id="tab-profile">
+      <div class="profile-cards-container">
+
+        <!-- Profile Information Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <span>
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profile Information
+            </span>
+          </div>
+          <div class="profile-card-content">
+            <div class="profile-card-body">
+              <div class="profile-avatar-section">
+                <div class="profile-avatar" id="profileAvatarDisplay">--</div>
+                <div class="profile-avatar-info">Member since <span id="profileCreated">—</span></div>
+              </div>
+              <div class="modal-form-group">
+                <label class="modal-form-label">Full Name</label>
+                <input class="modal-form-input" type="text" id="profileFullName" placeholder="Your full name"/>
+              </div>
+              <div class="modal-form-group">
+                <label class="modal-form-label">Email Address</label>
+                <input class="modal-form-input" type="email" id="profileEmail" placeholder="your@email.com"/>
+              </div>
+              <div class="modal-form-row">
+                <div class="modal-form-group">
+                  <label class="modal-form-label">Username</label>
+                  <input class="modal-form-input" type="text" id="profileUsername" disabled style="opacity:.6;cursor:not-allowed"/>
+                </div>
+                <div class="modal-form-group">
+                  <label class="modal-form-label">Role</label>
+                  <input class="modal-form-input" type="text" id="profileRole" disabled style="opacity:.6;cursor:not-allowed;text-transform:capitalize"/>
+                </div>
+              </div>
+            </div>
+            <div class="profile-card-footer">
+              <button class="btn btn-primary" id="saveProfileBtn">
+                <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                Save Profile
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <span>
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Change Password
+            </span>
+          </div>
+          <div class="profile-card-content">
+            <div class="profile-card-body profile-form-content">
+              <form id="passwordForm">
+                <div class="modal-form-group">
+                  <label class="modal-form-label">Current Password</label>
+                  <div style="position: relative; display: flex; align-items: center;"><input class="modal-form-input" type="password" id="currentPassword" placeholder="Enter current password" style="width: 100%; padding-right: 36px;"/><i class="fa-solid fa-eye" onclick="togglePw('currentPassword', this)" style="position: absolute; right: 12px; cursor: pointer; color: var(--slate-400);"></i></div>
+                </div>
+                <div class="modal-form-group">
+                  <label class="modal-form-label">New Password</label>
+                  <div style="position: relative; display: flex; align-items: center;"><input class="modal-form-input" type="password" id="newPassword" placeholder="Min. 6 characters" style="width: 100%; padding-right: 36px;"/><i class="fa-solid fa-eye" onclick="togglePw('newPassword', this)" style="position: absolute; right: 12px; cursor: pointer; color: var(--slate-400);"></i></div>
+                </div>
+                <div class="modal-form-group">
+                  <label class="modal-form-label">Confirm New Password</label>
+                  <div style="position: relative; display: flex; align-items: center;"><input class="modal-form-input" type="password" id="confirmNewPassword" placeholder="Repeat new password" style="width: 100%; padding-right: 36px;"/><i class="fa-solid fa-eye" onclick="togglePw('confirmNewPassword', this)" style="position: absolute; right: 12px; cursor: pointer; color: var(--slate-400);"></i></div>
+                </div>
+              </form>
+            </div>
+            <div class="profile-card-footer">
+              <button type="button" class="btn btn-primary" id="savePasswordBtn">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                Update Password
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <span>
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Recent Activity
+            </span>
+            <a href="#" class="btn-text" id="viewAllActivityBtn" style="display:none;margin-left:auto;margin-right:-8px">View All</a>
+          </div>
+          <div class="profile-card-content">
+            <ul class="activity-list" id="profileActivityList" style="list-style:none;padding:0;margin:0">
+              <li style="text-align:center;color:var(--slate-400);padding:40px 0">Loading activities...</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL — Logout -->
+  <div class="modal-overlay hidden" id="logoutModal">
+    <div class="modal logout-modal">
+      <div class="modal-body">
+        <div class="logout-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+        <h3>Sign Out</h3>
+        <p>Are you sure you want to sign out?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close="logoutModal">Stay</button>
+        <button class="btn btn-danger" id="confirmLogoutBtn">Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>window.Chart || document.write('<script src="/gcst-system/backend/libs/chartjs/chart.umd.min.js"><\/script>');</script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.Chart) {
+        Chart.defaults.animation = false;
+        Chart.defaults.animations = false;
+        Chart.defaults.transitions = {
+          active: { animation: { duration: 0 } },
+          resize: { animation: { duration: 0 } },
+          show: { animations: {} },
+          hide: { animations: {} },
+        };
+      }
+
+      const canvas = document.getElementById('facultyRoomChart');
+      const placeholder = document.getElementById('facultyRoomChartPlaceholder');
+      if (!canvas || !placeholder) return;
+
+      const hidePlaceholder = () => {
+        placeholder.classList.add('is-hidden');
+        setTimeout(() => {
+          placeholder.style.display = 'none';
+        }, 220);
+      };
+
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      const hasPaintedChart = () => {
+        if (!context || canvas.width === 0 || canvas.height === 0) return false;
+        const sampleWidth = Math.min(canvas.width, 260);
+        const sampleHeight = Math.min(canvas.height, 170);
+        const pixels = context.getImageData(0, 0, sampleWidth, sampleHeight).data;
+        for (let i = 3; i < pixels.length; i += 4) {
+          if (pixels[i] > 0) return true;
+        }
+        return false;
+      };
+
+      const startPaintWatch = (duration = 2600) => {
+        const startedAt = Date.now();
+        const waitForChartPaint = () => {
+          if (hasPaintedChart()) {
+            hidePlaceholder();
+            return;
+          }
+          if (Date.now() - startedAt > duration) return;
+          requestAnimationFrame(waitForChartPaint);
+        };
+
+        requestAnimationFrame(waitForChartPaint);
+      };
+
+      document.querySelector('.dash-tab[data-tab="reserve"]')?.addEventListener('click', () => {
+        placeholder.style.display = '';
+        placeholder.classList.remove('is-hidden');
+        setTimeout(() => {
+          const chart = window.Chart?.getChart?.(canvas);
+          chart?.resize();
+          chart?.update('none');
+          if (hasPaintedChart()) {
+            hidePlaceholder();
+          } else {
+            startPaintWatch();
+          }
+        }, 80);
+      });
+
+      const activeReserveTab = document.getElementById('tab-reserve')?.classList.contains('active');
+      if (activeReserveTab) {
+        setTimeout(() => {
+          const chart = window.Chart?.getChart?.(canvas);
+          chart?.resize();
+          chart?.update('none');
+          startPaintWatch();
+        }, 80);
+      } else {
+        startPaintWatch();
+      }
+    });
+  </script>
+  <script src="/gcst-system/backend/js/script.js?v=28"></script>
+  <script src="/gcst-system/backend/js/room-scanner.js?v=1"></script>
+  <script>
+    (function initFacultyNotificationNavigation() {
+      function openMyReservationsFromNotification() {
+        const tab = document.querySelector('.dash-tab[data-tab="my-reservations"]');
+        const panel = document.getElementById('tab-my-reservations');
+        const dropdown = document.getElementById('notifDropdown');
+
+        dropdown?.classList.add('hidden');
+        tab?.click();
+
+        // Keep the visual state correct even if the shared tab listener is delayed.
+        document.querySelectorAll('.dash-tab').forEach(item => item.classList.remove('active'));
+        tab?.classList.add('active');
+        document.querySelectorAll('.tab-panel').forEach(item => {
+          item.classList.toggle('active', item === panel);
+        });
+
+        setTimeout(() => {
+          const target = document.getElementById('myReservationHistoryCard') || document.getElementById('myResTableBody');
+          target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 180);
+      }
+
+      document.addEventListener('click', event => {
+        const notification = event.target.closest('.notif-item');
+        if (!notification) return;
+        openMyReservationsFromNotification();
+      });
+    })();
+
+  </script>
+  <script src="../backend/js/reservation-validation.js?v=1"></script>
+  <script>
+    (function initReserveAvailabilityFilter() {
+      const filter = document.getElementById('reserveLocationFilter');
+      const grid = document.getElementById('facultyReserveRoomsGrid');
+      if (!filter || !grid) return;
+
+      const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+      }[char]));
+
+      function roomStatusClass(status) {
+        const value = String(status || '').toLowerCase();
+        if (value === 'occupied') return 'occupied';
+        if (value === 'under maintenance' || value === 'maintenance') return 'maintenance';
+        return 'available';
+      }
+
+      async function loadReserveLocations() {
+        try {
+          const response = await fetch('/gcst-system/backend/modules/rooms.php?action=get_locations', { credentials: 'include' });
+          const data = await response.json();
+          const locations = Array.isArray(data.locations) ? data.locations : [];
+          const current = filter.value || 'All';
+
+          filter.innerHTML = '<option value="All">All Locations</option>' +
+            locations.map(loc => `<option value="${escapeText(loc.location_name)}">${escapeText(loc.location_name)}</option>`).join('');
+          filter.value = [...filter.options].some(option => option.value === current) ? current : 'All';
+        } catch (error) {
+          console.error('Could not load reserve locations:', error);
+        }
+      }
+
+      async function loadReserveAvailability(location = filter.value || 'All') {
+        try {
+          const params = new URLSearchParams({ location: location || 'All' });
+          const response = await fetch(`/gcst-system/backend/modules/rooms.php?${params.toString()}`, { credentials: 'include' });
+          const data = await response.json();
+          const rooms = Array.isArray(data.rooms) ? data.rooms : [];
+
+          if (!data.success) return;
+          if (!rooms.length) {
+            grid.innerHTML = '<div class="room-grid-empty">No rooms found</div>';
+            return;
+          }
+
+          grid.innerHTML = rooms.map(room => {
+            const roomId = escapeText(room.room_id);
+            const roomName = escapeText(room.room_name);
+            const status = escapeText(room.status || 'Available');
+            const locationText = escapeText(room.location || 'No location');
+
+            return `<div class="room-item ${roomStatusClass(room.status)}" style="cursor:pointer" data-reserve-room-id="${roomId}" title="${roomId} - ${roomName} (${status}) - ${locationText}">${roomId}</div>`;
+          }).join('');
+        } catch (error) {
+          console.error('Could not filter reserve availability:', error);
+        }
+      }
+
+      grid.addEventListener('click', event => {
+        const roomSquare = event.target.closest('[data-reserve-room-id]');
+        const roomSelect = document.getElementById('resRoomSelect');
+        if (roomSquare && roomSelect) {
+          roomSelect.value = roomSquare.dataset.reserveRoomId || '';
+          roomSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+
+      filter.addEventListener('change', () => loadReserveAvailability(filter.value || 'All'));
+      document.querySelector('.dash-tab[data-tab="reserve"]')?.addEventListener('click', () => {
+        setTimeout(() => loadReserveAvailability(filter.value || 'All'), 120);
+      });
+      document.getElementById('submitResBtn')?.addEventListener('click', () => {
+        setTimeout(() => loadReserveAvailability(filter.value || 'All'), 700);
+      });
+
+      loadReserveLocations().then(() => loadReserveAvailability(filter.value || 'All'));
+    })();
+
+    // ========== LOAD FACULTY TREND PREDICTIONS ==========
+    async function loadFacultyTrends() {
+      try {
+        const response = await api.get(API.predictionsReport, { report: 'all' });
+        if (!response.data) {
+          console.warn('Faculty trend predictions not available:', response.message);
+        }
+
+        const data = response.data || {};
+        if (!response.success) {
+          console.warn('Faculty trend predictions not available:', response.message);
+        }
+
+        // Forecast Summary
+        if (data.forecast_summary && data.forecast_summary.status === 'success') {
+          const summary = data.forecast_summary;
+          
+          const peakDayEl = document.getElementById('facultyPeakDay');
+          if (peakDayEl) peakDayEl.textContent = summary.predicted_peak_day || '—';
+
+          const peakValueEl = document.getElementById('facultyPeakValue');
+          if (peakValueEl) peakValueEl.textContent = summary.predicted_peak_value || '—';
+
+          const trendEl = document.getElementById('facultyTrendDir');
+          if (trendEl) trendEl.textContent = (summary.trend || 'Stable').toUpperCase();
+        }
+
+        // Top Rooms
+        if (data.top_rooms && Array.isArray(data.top_rooms)) {
+          const topRoomsTable = document.getElementById('facultyTopRoomsTable');
+          if (topRoomsTable) {
+            topRoomsTable.innerHTML = data.top_rooms.length > 0
+              ? data.top_rooms.map(room => `
+                  <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 12px;">${escapeHtml(room.room_code)} - ${escapeHtml(room.room_name)}</td>
+                    <td style="padding: 12px; text-align: center; font-weight: 700; color: #3b82f6;">${room.total_reservations}</td>
+                    <td style="padding: 12px; text-align: center; color: #64748b;">${parseFloat(room.avg_per_day).toFixed(1)}</td>
+                  </tr>
+                `).join('')
+              : '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8;">No trend data available yet.</td></tr>';
+          }
+        } else {
+          const topRoomsTable = document.getElementById('facultyTopRoomsTable');
+          if (topRoomsTable) {
+            topRoomsTable.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #94a3b8;">No trend data available yet.</td></tr>';
+          }
+        }
+
+        // Analysis Text
+        if (data.forecast_summary && data.forecast_summary.status === 'success') {
+          const summary = data.forecast_summary;
+          const analysisEl = document.getElementById('facultyTrendAnalysis');
+          if (analysisEl) {
+            const trendText = summary.trend === 'increasing'
+              ? 'Room demand is <strong style="color: #dc2626;">increasing</strong>'
+              : summary.trend === 'decreasing'
+                ? 'Room demand is <strong style="color: #10b981;">decreasing</strong>'
+                : 'Room demand is <strong>stable</strong>';
+            
+            analysisEl.innerHTML = `
+              <strong>📊 Analysis:</strong> ${trendText}. 
+              <br/><br/>
+              <strong>💡 Recommendation:</strong> Peak demand is expected on <strong>${escapeHtml(summary.predicted_peak_day)}</strong>. 
+              Consider scheduling important sessions on less busy days to ensure better room availability.
+              <br/><br/>
+              <strong>📈 Forecast Confidence:</strong> ${summary.model_confidence}
+            `;
+          }
+        } else {
+          const summary = data.forecast_summary || data.reservation_forecast || {};
+          const analysisEl = document.getElementById('facultyTrendAnalysis');
+          if (analysisEl) {
+            analysisEl.innerHTML = `
+              <strong>Analysis:</strong> ${escapeHtml(summary.message || response.message || 'Not enough historical data for prediction generation.')}
+              <br/><br/>
+              Required records: <strong>${summary.required_records ?? '-'}</strong>.
+              Available records: <strong>${summary.available_records ?? 0}</strong>.
+            `;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading faculty trends:', error);
+      }
+    }
+
+    // Load trends when tab is opened
+    document.querySelector('.dash-tab[data-tab="trends"]')?.addEventListener('click', loadFacultyTrends);
+    // Also load on initial page load
+    setTimeout(loadFacultyTrends, 1000);
+  </script>
+</body>
+</html>

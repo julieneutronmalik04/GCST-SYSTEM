@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GCST Resource Management System — Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css?v=18"/>
+</head>
+<body class="login-page">
+
+  <div class="login-split">
+
+    <!-- ── LEFT PANEL ── -->
+    <div class="login-left">
+
+      <div class="login-logo">
+        <div class="login-logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <span class="login-logo-text">Granby Colleges of Science and Technology</span>
+      </div>
+
+      <p class="login-hero-label">Resource Management System</p>
+      <h1 class="login-hero-title">Room Reservation<br/><span>Equipment Inventory</span></h1>
+      <p class="login-hero-desc">
+        A unified platform for managing room reservations, equipment inventory, and
+        QR-code asset tracking — powered by predictive analytics.
+      </p>
+
+      <div class="login-features">
+        <div class="login-feature">
+          <div class="login-feature-dot">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 17h3m3 0h-3m0-3v3m0 3v-3"/></svg>
+          </div>
+          <span>QR Code-based equipment tracking</span>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-dot">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </div>
+          <span>Room reservation &amp; scheduling</span>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-dot">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <span>Predictive analytics &amp; insights</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 15px; max-width: 380px;">
+        <button type="button" onclick="window.location.href='room-availability.html'" style="flex: 1; padding: 8px 10px; background-color: #ffffff; color: #007bff; border: 1.5px solid #007bff; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 11.5px; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.3s ease;">
+          <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0;">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <path d="M16 2v4M8 2v4M3 10h18"></path>
+          </svg>
+          Check Availability
+        </button>
+        <button type="button" onclick="window.location.href='register-borrower.html'" style="flex: 1; padding: 8px 10px; background-color: #007bff; color: #ffffff; border: 1.5px solid #007bff; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 11.5px; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.3s ease;">
+          <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0;">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          Register Borrower
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT PANEL ── -->
+    <div class="login-right">
+      <div class="login-card">
+
+        <div class="login-card-header">
+          <p class="login-card-eyebrow">Welcome back</p>
+          <h2 class="login-card-title">Sign in to your account</h2>
+          <p class="login-card-sub">Type your credentials manually</p>
+        </div>
+
+        <div class="login-error" id="loginError"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <div class="form-input-wrap">
+            <input class="form-input" type="text" id="username"
+              placeholder="Enter your username"
+              autocomplete="username"/>
+            <svg class="form-input-icon" viewBox="0 0 24 24">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:24px">
+          <label class="form-label" for="password">Password</label>
+          <div class="form-input-wrap" style="position: relative;">
+            <input class="form-input" type="password" id="password"
+              placeholder="Enter your password"
+              autocomplete="current-password" style="padding-right: 40px;"/>
+            <svg class="form-input-icon" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            <span id="togglePasswordBtn" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280; z-index: 10;" onclick="const p=document.getElementById('password'); const i=this.querySelector('i'); if(p.type==='password'){p.type='text';i.classList.remove('fa-eye');i.classList.add('fa-eye-slash');}else{p.type='password';i.classList.remove('fa-eye-slash');i.classList.add('fa-eye');}">
+              <i class="fa-regular fa-eye"></i>
+            </span>
+          </div>
+        </div>
+
+        <button class="btn-login" id="loginBtn">Sign In</button>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LOGIN SCRIPT — inline, paraiwas loading error at walakang pake-->
+  <footer class="login-footer">&copy; 2026 Granby Colleges of Science and Technology</footer>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var API_BASE = '/gcst-system/backend';
+
+
+    var loginBtn    = document.getElementById('loginBtn');
+    var usernameEl  = document.getElementById('username');
+    var passwordEl  = document.getElementById('password');
+    var errorBox    = document.getElementById('loginError');
+
+    // ── eme-eme button auto-fill ──
+    // ── Allow Enter key to submit ───
+    [usernameEl, passwordEl].forEach(function (el) {
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') doLogin();
+      });
+    });
+
+    loginBtn.addEventListener('click', doLogin);
+
+    function doLogin() {
+      hideError();
+
+      var username = usernameEl.value.trim();
+      var password = passwordEl.value;
+
+      if (!username || !password) {
+        showError('Please enter your username and password.');
+        return;
+      }
+
+      // Show loading state
+      loginBtn.textContent = 'Signing in…';
+      loginBtn.disabled    = true;
+
+      var formData = new FormData();
+      formData.append('username', username);
+      formData.append('password', password);
+
+      fetch(API_BASE + '/login.php', {
+        method:      'POST',
+        credentials: 'include',  
+        body:        formData
+      })
+      .then(function (res) {
+        // Check response 
+        var contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          return res.text().then(function (text) {
+            throw new Error('Server returned non-JSON response. Check XAMPP is running and the backend path is correct.\n\nServer said:\n' + text.substring(0, 300));
+          });
+        }
+        return res.json();
+      })
+      .then(function (data) {
+        if (data.success) {
+          loginBtn.textContent = 'Redirecting…';
+          // Redirect to the correct dashboard
+          window.location.href = data.redirect;
+        } else {
+          showError(data.message || 'Login failed. Please try again.');
+          resetBtn();
+        }
+      })
+      .catch(function (err) {
+        console.error('Login error:', err);
+        showError(
+          'Cannot connect to the server.\n' +
+          '→ Make sure XAMPP Apache is running.\n' +
+          '→ Make sure the backend folder is at: htdocs/backend/\n' +
+          '→ API path set to: ' + API_BASE
+        );
+        resetBtn();
+      });
+    }
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.classList.add('show');
+      errorBox.style.whiteSpace = 'pre-line'; 
+    }
+    function hideError() {
+      errorBox.classList.remove('show');
+    }
+    function resetBtn() {
+      loginBtn.textContent = 'Sign In';
+      loginBtn.disabled    = false;
+    }
+
+  })();
+  </script>
+
+</body>
+</html>
